@@ -133,7 +133,7 @@ export function BookingFlow({
         expYear < currentYear ||
         (expYear === currentYear && expMonth < currentMonth)
       ) {
-        next.expiry = "Expired card";
+        next.expiry = "Expired card. Please use a valid card.";
       }
     }
     if (!form.cvc.match(/^[0-9]{3,4}$/)) next.cvc = "Enter valid 3 or 4-digit CVC";
@@ -370,6 +370,9 @@ export function BookingFlow({
                   className={inputCls}
                   placeholder="12/28"
                 />
+                {errors.expiry && (
+                  <p className="mt-1 text-xs text-red-500">{errors.expiry}</p>
+                )}
               </label>
               <label className="block">
                 <span className={labelCls}>CVC</span>
@@ -380,6 +383,9 @@ export function BookingFlow({
                   placeholder="123"
                   inputMode="numeric"
                 />
+                {errors.cvc && (
+                  <p className="mt-1 text-xs text-red-500">{errors.cvc}</p>
+                )}
               </label>
             </div>
           </section>
