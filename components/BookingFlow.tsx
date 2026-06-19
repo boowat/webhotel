@@ -64,6 +64,10 @@ export function BookingFlow({
   const [checkIn, setCheckIn] = useState(initialCheckIn ?? "");
   const [checkOut, setCheckOut] = useState(initialCheckOut ?? "");
   const [guests, setGuests] = useState(initialGuests ?? 2);
+  // Credit card unvisualized hanya untuk mengirim nomor kartu ke server
+  const [creditCardUnvisualizedNumber, setCreditCardUnvisualizedNumber] = useState<number>();
+  // Untuk dinamis input ke user
+  const [creditCardVisualized, setCreditCardVisualized] = useState<string>("");
   const [form, setForm] = useState<GuestForm>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirmed, setConfirmed] = useState<{ ref: string } | null>(null);
@@ -89,13 +93,50 @@ export function BookingFlow({
     setErrors((e) => ({ ...e, [field]: "" }));
   }
 
+  const luhnCheck = (value: string): boolean => {
+    // Remove any non‑digit characters (e.g., spaces or dashes) to ensure a clean numeric string
+    const digits = value.replace(/\D/g, "");
+    if (digits.length === 0) return false;
+    let sum = 0;
+    let shouldDouble = false;
+    // Iterate from right‑most digit to left‑most
+    for (let i = digits.length - 1; i >= 0; i--) {
+      let digit = parseInt(digits.charAt(i), 10);
+      if (shouldDouble) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+    return sum % 10 === 0;
+  }
+
   function validate(): boolean {
     const next: Record<string, string> = {};
     if (!form.firstName.trim()) next.firstName = "Required";
     if (!form.lastName.trim()) next.lastName = "Required";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email))
       next.email = "Enter a valid email";
-    if (!form.card.trim()) next.card = "Required (use any number)";
+    if (!form.card.trim()) next.card = "Required (use any Luhn-verified number)";
+    if (!luhnCheck(form.card)) next.card = "Invalid credit card number";
+    if (!/^[0-1][0-9]\/\d{2}$/.test(form.expiry)) {
+      next.expiry = "Format: MM/YY";
+    } else {
+      const [mm, yy] = form.expiry.split("/").map((v) => parseInt(v, 10));
+      const expYear = 2000 + yy;
+      const expMonth = mm;
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth() + 1;
+      if (
+        expYear < currentYear ||
+        (expYear === currentYear && expMonth < currentMonth)
+      ) {
+        next.expiry = "Expired card. Please use a valid card.";
+      }
+    }
+    if (!form.cvc.match(/^[0-9]{3,4}$/)) next.cvc = "Enter valid 3 or 4-digit CVC";
     if (nights <= 0) next.dates = "Choose valid dates";
     if (guests > room.maxGuests)
       next.guests = `This room sleeps up to ${room.maxGuests}`;
@@ -108,6 +149,15 @@ export function BookingFlow({
     if (!validate()) return;
     setConfirmed({ ref: makeBookingRef() });
     if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+  }
+
+  const changeCreditCardNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
+    const visualization = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+    setCreditCardVisualized(visualization);
+    setCreditCardUnvisualizedNumber(Number(digits));
+    setErrors((er) => ({ ...er, card: "" }));
+    update("card", digits);
   }
 
   const inputCls =
@@ -302,8 +352,8 @@ export function BookingFlow({
               <label className="block sm:col-span-2">
                 <span className={labelCls}>Card number</span>
                 <input
-                  value={form.card}
-                  onChange={(e) => update("card", e.target.value)}
+                  value={creditCardVisualized}
+                  onChange={(e) => changeCreditCardNumber(e)}
                   className={inputCls}
                   placeholder="4242 4242 4242 4242"
                   inputMode="numeric"
@@ -320,6 +370,9 @@ export function BookingFlow({
                   className={inputCls}
                   placeholder="12/28"
                 />
+                {errors.expiry && (
+                  <p className="mt-1 text-xs text-red-500">{errors.expiry}</p>
+                )}
               </label>
               <label className="block">
                 <span className={labelCls}>CVC</span>
@@ -330,6 +383,9 @@ export function BookingFlow({
                   placeholder="123"
                   inputMode="numeric"
                 />
+                {errors.cvc && (
+                  <p className="mt-1 text-xs text-red-500">{errors.cvc}</p>
+                )}
               </label>
             </div>
           </section>
