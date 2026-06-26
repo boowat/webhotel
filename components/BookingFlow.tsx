@@ -40,15 +40,6 @@ const emptyForm: GuestForm = {
   cvc: "",
 };
 
-function makeBookingRef(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let out = "";
-  for (let i = 0; i < 6; i++) {
-    out += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return `LUMI-${out}`;
-}
-
 export function BookingFlow({
   hotel,
   initialRoomId,
@@ -71,6 +62,7 @@ export function BookingFlow({
   const [form, setForm] = useState<GuestForm>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [confirmed, setConfirmed] = useState<{ ref: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Fill sensible default dates on the client if none were passed in.
   useEffect(() => {
@@ -144,11 +136,67 @@ export function BookingFlow({
     return Object.keys(next).length === 0;
   }
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
-    setConfirmed({ ref: makeBookingRef() });
-    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+    setSubmitting(true);
+    setErrors({});
+
+    try {
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          hotel_id: hotel.id,
+          room_id: roomId,
+          check_in_date: checkIn,
+          check_out_date: checkOut,
+          guests,
+          guest_first_name: form.firstName,
+          guest_last_name: form.lastName,
+          guest_email: form.email,
+          guest_phone: form.phone || undefined,
+          card_number: form.card.replace(/\D/g, ""),
+          card_expiry: form.expiry,
+          card_cvc: form.cvc,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        // Map server validation errors back to form fields
+        if (data.errors && Array.isArray(data.errors)) {
+          const fieldMap: Record<string, string> = {};
+          for (const err of data.errors) {
+            const key = err.field
+              ?.replace("guest_first_name", "firstName")
+              .replace("guest_last_name", "lastName")
+              .replace("guest_email", "email")
+              .replace("card_number", "card")
+              .replace("card_expiry", "expiry")
+              .replace("card_cvc", "cvc")
+              .replace("check_in_date", "dates")
+              .replace("check_out_date", "dates") ?? "_general";
+            fieldMap[key] = err.message;
+          }
+          setErrors(fieldMap);
+        } else {
+          setErrors({ _general: data.message || "Booking failed" });
+        }
+        return;
+      }
+
+      setConfirmed({ ref: data.data.booking_ref });
+      if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+    } catch {
+      setErrors({ _general: "Network error. Please try again." });
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const changeCreditCardNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -390,11 +438,18 @@ export function BookingFlow({
             </div>
           </section>
 
+          {errors._general && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errors._general}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-full bg-brand-600 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-700 lg:hidden"
+            disabled={submitting}
+            className="w-full rounded-full bg-brand-600 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed lg:hidden"
           >
-            Confirm booking · {formatCurrency(breakdown.total, hotel.currency)}
+            {submitting ? "Processing…" : `Confirm booking · ${formatCurrency(breakdown.total, hotel.currency)}`}
           </button>
         </div>
 
@@ -474,9 +529,10 @@ export function BookingFlow({
               <div className="hidden p-4 lg:block">
                 <button
                   type="submit"
-                  className="w-full rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700"
+                  disabled={submitting}
+                  className="w-full rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Confirm booking
+                  {submitting ? "Processing…" : "Confirm booking"}
                 </button>
               </div>
             </div>
