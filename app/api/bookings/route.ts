@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getHotel } from "@/lib/hotels";
-import {
-  nightsBetween,
-  priceBreakdown,
-  SERVICE_FEE_RATE,
-  TAX_RATE,
-} from "@/lib/pricing";
+import { nightsBetween, priceBreakdown } from "@/lib/pricing";
 import { addBooking, getBookings, type Booking } from "@/lib/bookings";
 import { sendBookingConfirmation } from "@/lib/email";
+import {
+  BookingRequestSchema,
+  formatZodErrors,
+} from "@/lib/schemas/booking";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -26,38 +25,6 @@ function uuid(): string {
   return crypto.randomUUID();
 }
 
-function isValidDate(s: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(s));
-}
-
-/* Luhn check — mirrors the frontend validation */
-function luhnCheck(value: string): boolean {
-  const digits = value.replace(/\D/g, "");
-  if (digits.length === 0) return false;
-  let sum = 0;
-  let shouldDouble = false;
-  for (let i = digits.length - 1; i >= 0; i--) {
-    let digit = parseInt(digits.charAt(i), 10);
-    if (shouldDouble) {
-      digit *= 2;
-      if (digit > 9) digit -= 9;
-    }
-    sum += digit;
-    shouldDouble = !shouldDouble;
-  }
-  return sum % 10 === 0;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Validation types                                                   */
-/* ------------------------------------------------------------------ */
-
-interface ValidationError {
-  field: string;
-  code: string;
-  message: string;
-}
-
 /* ------------------------------------------------------------------ */
 /*  POST /api/bookings                                                 */
 /* ------------------------------------------------------------------ */
@@ -65,7 +32,7 @@ interface ValidationError {
 export async function POST(request: NextRequest) {
   try {
     /* --- Parse body ------------------------------------------------ */
-    let body: Record<string, unknown>;
+    let body: unknown;
     try {
       body = await request.json();
     } catch {
@@ -79,7 +46,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    /* --- Extract fields ------------------------------------------- */
+    /* --- Schema validation (Zod) ---------------------------------- */
+    const parsed = BookingRequestSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "Validation failed",
+          errors: formatZodErrors(parsed.error),
+        },
+        { status: 400 }
+      );
+    }
+
     const {
       hotel_id,
       room_id,
@@ -90,166 +70,13 @@ export async function POST(request: NextRequest) {
       guest_last_name,
       guest_email,
       guest_phone,
-      card_number,
-      card_expiry,
-      card_cvc,
-    } = body as {
-      hotel_id?: string;
-      room_id?: string;
-      check_in_date?: string;
-      check_out_date?: string;
-      guests?: number;
-      guest_first_name?: string;
-      guest_last_name?: string;
-      guest_email?: string;
-      guest_phone?: string;
-      card_number?: string;
-      card_expiry?: string;
-      card_cvc?: string;
-    };
-
-    /* --- Validation ------------------------------------------------ */
-    const errors: ValidationError[] = [];
-
-    // Required fields
-    if (!hotel_id)
-      errors.push({
-        field: "hotel_id",
-        code: "REQUIRED",
-        message: "hotel_id is required",
-      });
-
-    if (!room_id)
-      errors.push({
-        field: "room_id",
-        code: "REQUIRED",
-        message: "room_id is required",
-      });
-
-    if (!check_in_date)
-      errors.push({
-        field: "check_in_date",
-        code: "REQUIRED",
-        message: "check_in_date is required",
-      });
-    else if (!isValidDate(check_in_date))
-      errors.push({
-        field: "check_in_date",
-        code: "INVALID_FORMAT",
-        message: "check_in_date must be in YYYY-MM-DD format",
-      });
-
-    if (!check_out_date)
-      errors.push({
-        field: "check_out_date",
-        code: "REQUIRED",
-        message: "check_out_date is required",
-      });
-    else if (!isValidDate(check_out_date))
-      errors.push({
-        field: "check_out_date",
-        code: "INVALID_FORMAT",
-        message: "check_out_date must be in YYYY-MM-DD format",
-      });
-
-    if (guests === undefined || guests === null)
-      errors.push({
-        field: "guests",
-        code: "REQUIRED",
-        message: "guests is required and must be at least 1",
-      });
-    else if (typeof guests !== "number" || guests < 1)
-      errors.push({
-        field: "guests",
-        code: "INVALID_VALUE",
-        message: "guests must be a number >= 1",
-      });
-
-    if (!guest_first_name?.trim())
-      errors.push({
-        field: "guest_first_name",
-        code: "REQUIRED",
-        message: "guest_first_name is required",
-      });
-
-    if (!guest_last_name?.trim())
-      errors.push({
-        field: "guest_last_name",
-        code: "REQUIRED",
-        message: "guest_last_name is required",
-      });
-
-    if (
-      !guest_email ||
-      !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(guest_email)
-    )
-      errors.push({
-        field: "guest_email",
-        code: "INVALID_EMAIL",
-        message: "A valid guest_email is required",
-      });
-
-    if (!card_number)
-      errors.push({
-        field: "card_number",
-        code: "REQUIRED",
-        message: "card_number is required",
-      });
-    else if (!luhnCheck(card_number))
-      errors.push({
-        field: "card_number",
-        code: "INVALID_CARD",
-        message: "card_number failed Luhn check",
-      });
-
-    if (!card_expiry || !/^[0-1][0-9]\/\d{2}$/.test(card_expiry))
-      errors.push({
-        field: "card_expiry",
-        code: "INVALID_FORMAT",
-        message: "card_expiry must be in MM/YY format",
-      });
-    else {
-      const [mm, yy] = card_expiry.split("/").map((v) => parseInt(v, 10));
-      const expYear = 2000 + yy;
-      const expMonth = mm;
-      const today = new Date();
-      if (
-        expYear < today.getFullYear() ||
-        (expYear === today.getFullYear() &&
-          expMonth < today.getMonth() + 1)
-      ) {
-        errors.push({
-          field: "card_expiry",
-          code: "CARD_EXPIRED",
-          message: "The card has expired",
-        });
-      }
-    }
-
-    if (!card_cvc || !/^[0-9]{3,4}$/.test(card_cvc))
-      errors.push({
-        field: "card_cvc",
-        code: "INVALID_FORMAT",
-        message: "card_cvc must be 3 or 4 digits",
-      });
-
-    // Return 400 if basic validation fails
-    if (errors.length > 0) {
-      return NextResponse.json(
-        {
-          status: "error",
-          message: "Validation failed",
-          errors,
-        },
-        { status: 400 }
-      );
-    }
+    } = parsed.data;
 
     /* --- Business logic validation -------------------------------- */
 
     // check_in_date must not be in the past
     const todayStr = new Date().toISOString().split("T")[0];
-    if (check_in_date! < todayStr) {
+    if (check_in_date < todayStr) {
       return NextResponse.json(
         {
           status: "error",
@@ -261,7 +88,7 @@ export async function POST(request: NextRequest) {
     }
 
     // check_out_date must be after check_in_date
-    if (check_out_date! <= check_in_date!) {
+    if (check_out_date <= check_in_date) {
       return NextResponse.json(
         {
           status: "error",
@@ -273,7 +100,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Hotel must exist
-    const hotel = getHotel(hotel_id!);
+    const hotel = getHotel(hotel_id);
     if (!hotel) {
       return NextResponse.json(
         {
@@ -299,7 +126,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Guest count must not exceed room capacity
-    if (guests! > room.maxGuests) {
+    if (guests > room.maxGuests) {
       return NextResponse.json(
         {
           status: "error",
@@ -317,8 +144,8 @@ export async function POST(request: NextRequest) {
         b.hotelId === hotel_id &&
         b.roomId === room_id &&
         b.status === "confirmed" &&
-        check_in_date! < b.checkOut &&
-        check_out_date! > b.checkIn
+        check_in_date < b.checkOut &&
+        check_out_date > b.checkIn
     );
     if (hasConflict) {
       return NextResponse.json(
@@ -333,7 +160,7 @@ export async function POST(request: NextRequest) {
     }
 
     /* --- Calculate pricing ---------------------------------------- */
-    const nights = nightsBetween(check_in_date!, check_out_date!);
+    const nights = nightsBetween(check_in_date, check_out_date);
     const breakdown = priceBreakdown(room.pricePerNight, nights);
 
     /* --- Create booking ------------------------------------------- */
@@ -344,15 +171,15 @@ export async function POST(request: NextRequest) {
       hotelName: hotel.name,
       roomId: room.id,
       roomName: room.name,
-      checkIn: check_in_date!,
-      checkOut: check_out_date!,
+      checkIn: check_in_date,
+      checkOut: check_out_date,
       nights,
-      guests: guests!,
+      guests,
       guest: {
-        firstName: guest_first_name!.trim(),
-        lastName: guest_last_name!.trim(),
-        email: guest_email!.trim(),
-        phone: guest_phone?.trim() || undefined,
+        firstName: guest_first_name,
+        lastName: guest_last_name,
+        email: guest_email,
+        phone: guest_phone,
       },
       pricing: {
         pricePerNight: room.pricePerNight,
