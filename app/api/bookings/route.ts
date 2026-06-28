@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getHotel } from "@/lib/hotels";
+import { findRoomById } from "@/lib/hotels";
 import { nightsBetween, priceBreakdown } from "@/lib/pricing";
 import { addBooking, getBookings, type Booking } from "@/lib/bookings";
 import { sendBookingConfirmation } from "@/lib/email";
@@ -61,7 +61,6 @@ export async function POST(request: NextRequest) {
     }
 
     const {
-      hotel_id,
       room_id,
       check_in_date,
       check_out_date,
@@ -99,31 +98,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hotel must exist
-    const hotel = getHotel(hotel_id);
-    if (!hotel) {
+    // Room must exist
+    const result = findRoomById(room_id);
+    if (!result) {
       return NextResponse.json(
         {
           status: "error",
-          message: "Hotel not found",
-          code: "HOTEL_NOT_FOUND",
-        },
-        { status: 404 }
-      );
-    }
-
-    // Room must exist on this hotel
-    const room = hotel.rooms.find((r) => r.id === room_id);
-    if (!room) {
-      return NextResponse.json(
-        {
-          status: "error",
-          message: "Room not found in this hotel",
+          message: "Room not found",
           code: "ROOM_NOT_FOUND",
         },
         { status: 404 }
       );
     }
+
+    const { hotel, room } = result;
 
     // Guest count must not exceed room capacity
     if (guests > room.maxGuests) {
@@ -141,7 +129,6 @@ export async function POST(request: NextRequest) {
     const existingBookings = getBookings();
     const hasConflict = existingBookings.some(
       (b) =>
-        b.hotelId === hotel_id &&
         b.roomId === room_id &&
         b.status === "confirmed" &&
         check_in_date < b.checkOut &&
@@ -207,7 +194,6 @@ export async function POST(request: NextRequest) {
           booking_id: booking.id,
           booking_ref: booking.bookingRef,
           hotel: {
-            id: hotel.id,
             name: hotel.name,
             city: hotel.city,
             country: hotel.country,
@@ -269,8 +255,6 @@ export async function GET() {
       bookings: bookings.map((b) => ({
         booking_id: b.id,
         booking_ref: b.bookingRef,
-        hotel_id: b.hotelId,
-        hotel_name: b.hotelName,
         room_id: b.roomId,
         room_name: b.roomName,
         check_in_date: b.checkIn,

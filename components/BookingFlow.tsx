@@ -150,7 +150,6 @@ export function BookingFlow({
           Accept: "application/json",
         },
         body: JSON.stringify({
-          hotel_id: hotel.id,
           room_id: roomId,
           check_in_date: checkIn,
           check_out_date: checkOut,

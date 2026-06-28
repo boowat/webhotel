@@ -259,7 +259,6 @@ POST /api/bookings
 
 | Field              | Type      | Required | Description                                      |
 |--------------------|-----------|----------|--------------------------------------------------|
-| `hotel_id`         | `string`  | Yes      | ID hotel dari daftar hotel                       |
 | `room_id`          | `string`  | Yes      | ID kamar yang dipilih                            |
 | `check_in_date`    | `string`  | Yes      | Tanggal check-in (`YYYY-MM-DD`)                  |
 | `check_out_date`   | `string`  | Yes      | Tanggal check-out (`YYYY-MM-DD`)                 |
@@ -280,7 +279,6 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "hotel_id": "aurora-bali-resort",
   "room_id": "ocean-villa",
   "check_in_date": "2026-07-01",
   "check_out_date": "2026-07-05",
@@ -309,7 +307,6 @@ Accept: application/json
     "booking_id": "uuid-string",
     "booking_ref": "LUMI-ABC123",
     "hotel": {
-      "id": "aurora-bali-resort",
       "name": "Aurora Bali Resort & Spa",
       "city": "Uluwatu, Bali",
       "country": "Indonesia"
@@ -371,8 +368,8 @@ Accept: application/json
 ```json
 {
   "status": "error",
-  "message": "Hotel not found",
-  "code": "HOTEL_NOT_FOUND"
+  "message": "Room not found",
+  "code": "ROOM_NOT_FOUND"
 }
 ```
 
@@ -419,8 +416,7 @@ Accept: application/json
 | 5 | `guests` tidak boleh melebihi `maxGuests` kamar                        | `422`       |
 | 6 | `card_number` harus lolos Luhn check                                   | `400`       |
 | 7 | `card_expiry` harus dalam format `MM/YY` dan belum expired             | `400`       |
-| 8 | `hotel_id` harus merujuk ke hotel yang valid                           | `404`       |
-| 9 | `room_id` harus merujuk ke kamar yang valid di hotel tersebut          | `404`       |
+| 8 | `room_id` harus merujuk ke kamar yang valid                            | `404`       |
 | 10| Kamar tidak boleh double-booked pada tanggal yang sama                 | `409`       |
 | 11| Pricing dihitung server-side: `room_total = price_per_night × nights`  | —           |
 | 12| Service fee = 8% dari room total, Tax = 10% dari room total           | —           |
@@ -435,7 +431,7 @@ Accept: application/json
 |------------------|------------|--------------------------------------------------|
 | `booking_id`     | `string`   | UUID unik booking                                |
 | `booking_ref`    | `string`   | Referensi booking (format: `LUMI-XXXXXX`)        |
-| `hotel`          | `object`   | Info hotel (`id`, `name`, `city`, `country`)      |
+| `hotel`          | `object`   | Info hotel (`name`, `city`, `country`)            |
 | `room`           | `object`   | Info kamar (`id`, `name`)                        |
 | `check_in_date`  | `string`   | Tanggal check-in (ISO 8601)                      |
 | `check_out_date` | `string`   | Tanggal check-out (ISO 8601)                     |

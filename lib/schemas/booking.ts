@@ -49,7 +49,6 @@ const isoDateString = z
 
 export const BookingRequestSchema = z
   .object({
-    hotel_id: z.string().min(1, "hotel_id is required"),
     room_id: z.string().min(1, "room_id is required"),
 
     check_in_date: isoDateString,

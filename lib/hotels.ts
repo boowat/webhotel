@@ -611,3 +611,15 @@ export function getRoom(hotelId: string, roomId: string) {
   if (!room) return undefined;
   return { hotel, room };
 }
+
+/**
+ * Find a room by its ID across all hotels.
+ * Since this is a single-hotel app, room IDs are unique.
+ */
+export function findRoomById(roomId: string) {
+  for (const hotel of hotels) {
+    const room = hotel.rooms.find((r) => r.id === roomId);
+    if (room) return { hotel, room };
+  }
+  return undefined;
+}
