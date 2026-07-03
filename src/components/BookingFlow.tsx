@@ -208,7 +208,7 @@ export function BookingFlow({
   }
 
   const inputCls =
-    "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500";
+    "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500";
   const labelCls = "mb-1 block text-xs font-medium text-slate-500";
 
   if (confirmed) {

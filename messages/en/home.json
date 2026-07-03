@@ -1,0 +1,39 @@
+{
+  "website": {
+    "title": "Hotel Des Indes Menteng Jakarta",
+    "description": "Classic and Elegant Haven to Stay in Jakarta"
+  },
+  "hero": {
+    "heading-one": "Book Our Best \n Rooms and Venues.",
+    "subtitle": "A curated collection of hotels around the world, booked in a few taps. No clutter, no noise — just places we would actually stay.",
+    "exploreCta": "Explore stays",
+    "featuredCta": "View the featured villa",
+    "heroAlt": "Featured destination"
+  },
+  "featured": {
+    "label": "Featured stay",
+    "seeRooms": "See rooms & availability"
+  },
+  "stays": {
+    "title": "More places to stay",
+    "subtitle": "Hand-picked hotels across six destinations."
+  },
+  "how": {
+    "title": "How it works",
+    "subtitle": "From browsing to booked in three steps.",
+    "steps": {
+      "find": {
+        "title": "Find your stay",
+        "body": "Browse a small, hand-picked collection. No endless scroll, no fake urgency."
+      },
+      "dates": {
+        "title": "Pick your dates",
+        "body": "Choose a room, set your dates and guests, and see the full price up front."
+      },
+      "book": {
+        "title": "Book in seconds",
+        "body": "Confirm your details and you are done. Instant confirmation, no surprises."
+      }
+    }
+  }
+}

@@ -160,7 +160,7 @@ export function OptionalLoginPopup() {
                 Email address
               </label>
               <input
-                className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
+                className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-900 outline-hidden transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                 id="optional-login-email"
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="you@example.com"
@@ -171,7 +171,7 @@ export function OptionalLoginPopup() {
 
               <label className="mt-3 flex items-start gap-2 text-xs leading-5 text-slate-500">
                 <input
-                  className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+                  className="mt-1 h-4 w-4 rounded-sm border-slate-300 text-brand-600 focus:ring-brand-500"
                   defaultChecked
                   type="checkbox"
                 />

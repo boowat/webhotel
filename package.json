@@ -9,20 +9,30 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@phosphor-icons/core": "^2.1.1",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "dotenv": "^17.4.2",
     "next": "^14.2.35",
+    "next-intl": "^4.13.0",
     "nodemailer": "^9.0.1",
+    "pg": "^8.22.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-icons": "^5.7.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.2",
     "@types/node": "20.14.10",
     "@types/nodemailer": "^8.0.1",
+    "@types/pg": "^8.20.0",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
-    "autoprefixer": "10.4.19",
     "postcss": "8.4.39",
-    "tailwindcss": "3.4.6",
+    "prisma": "^7.8.0",
+    "tailwindcss": "^4.3.2",
+    "tsx": "^4.22.5",
     "typescript": "5.5.3"
   },
   "optionalDependencies": {

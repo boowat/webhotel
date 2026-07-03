@@ -27,3 +27,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .gstack/
+
+/app/generated/prisma
+
+/src/app/generated/prisma
