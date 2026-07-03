@@ -1,0 +1,36 @@
+{
+  "hero": {
+    "eyebrow": "Lumi Stays",
+    "title": "Menginap di tempat yang sepadan dengan perjalananmu.",
+    "subtitle": "Koleksi hotel pilihan dari seluruh dunia, dipesan dalam beberapa ketukan. Tanpa ribet, tanpa gangguan — hanya tempat yang benar-benar layak kami tinggali.",
+    "exploreCta": "Jelajahi penginapan",
+    "featuredCta": "Lihat vila unggulan",
+    "heroAlt": "Destinasi unggulan"
+  },
+  "featured": {
+    "label": "Penginapan unggulan",
+    "seeRooms": "Lihat kamar & ketersediaan"
+  },
+  "stays": {
+    "title": "Pilihan penginapan lainnya",
+    "subtitle": "Hotel pilihan di enam destinasi."
+  },
+  "how": {
+    "title": "Cara kerja",
+    "subtitle": "Dari menjelajah sampai memesan dalam tiga langkah.",
+    "steps": {
+      "find": {
+        "title": "Temukan penginapanmu",
+        "body": "Jelajahi koleksi kecil yang dikurasi. Tanpa scroll tanpa akhir, tanpa urgensi palsu."
+      },
+      "dates": {
+        "title": "Pilih tanggalmu",
+        "body": "Pilih kamar, atur tanggal dan jumlah tamu, lalu lihat harga lengkap di awal."
+      },
+      "book": {
+        "title": "Pesan dalam hitungan detik",
+        "body": "Konfirmasi detailmu dan selesai. Konfirmasi instan, tanpa kejutan."
+      }
+    }
+  }
+}
