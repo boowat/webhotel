@@ -1,7 +1,10 @@
 {
+  "website": {
+    "title": "Hotel Des Indes Menteng Jakarta",
+    "description": "Classic and Elegant Haven to Stay in Jakarta"
+  },
   "hero": {
-    "eyebrow": "Lumi Stays",
-    "title": "Stay somewhere worth the trip.",
+    "heading-one": "Book Our Best \n Rooms and Venues.",
     "subtitle": "A curated collection of hotels around the world, booked in a few taps. No clutter, no noise — just places we would actually stay.",
     "exploreCta": "Explore stays",
     "featuredCta": "View the featured villa",

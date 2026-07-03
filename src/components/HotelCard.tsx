@@ -10,14 +10,14 @@ export function HotelCard({ hotel }: { hotel: Hotel }) {
       href={`/hotels/${hotel.id}`}
       className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-card transition hover:shadow-lift"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-4/3 overflow-hidden">
         <SafeImage
           src={hotel.heroImage}
           fallbackSeed={hotel.heroSeed}
           alt={hotel.name}
           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
         />
-        <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-700 backdrop-blur">
+        <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-700 backdrop-blur-sm">
           {hotel.country}
         </span>
       </div>

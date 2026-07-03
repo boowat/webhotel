@@ -15,7 +15,12 @@ interface SafeImageProps {
  * fails (e.g. an Unsplash URL 404s), it swaps to a deterministic picsum.photos
  * image keyed by `fallbackSeed`, so a client demo never shows a broken image.
  */
-export function SafeImage({ src, fallbackSeed, alt, className }: SafeImageProps) {
+export function SafeImage({
+  src,
+  fallbackSeed,
+  alt,
+  className,
+}: SafeImageProps) {
   const [current, setCurrent] = useState(src);
   const [triedFallback, setTriedFallback] = useState(false);
 

@@ -32,7 +32,7 @@ export function RoomCard({
 }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white sm:flex-row">
-      <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-auto sm:w-56 sm:shrink-0">
+      <div className="relative aspect-16/10 w-full overflow-hidden sm:aspect-auto sm:w-56 sm:shrink-0">
         <SafeImage
           src={room.image}
           fallbackSeed={room.imageSeed}

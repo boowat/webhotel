@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { hotels } from "@/lib/hotels";
+import HeroesSection from "@/components/home/Heroes";
 import { HotelCard } from "@/components/HotelCard";
 import { SafeImage } from "@/components/SafeImage";
+import { BookingWidget } from "@/components/BookingWidget";
 
 // Icons stay in the component; the matching copy lives in messages/<locale>/home.json
 // under `how.steps`, paired with each icon by index via `stepKeys`.
@@ -25,51 +27,14 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <SafeImage
-            src={featured.gallery[0].src}
-            fallbackSeed="home-hero"
-            alt={t("hero.heroAlt")}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/45 to-slate-900/30" />
-        </div>
-
-        <div className="relative mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-32">
-          <p className="text-sm font-medium uppercase tracking-widest text-brand-200">
-            {t("hero.eyebrow")}
-          </p>
-          <h1 className="mt-3 max-w-2xl text-4xl font-bold leading-tight text-white sm:text-5xl">
-            {t("hero.title")}
-          </h1>
-          <p className="mt-4 max-w-xl text-lg text-slate-200">
-            {t("hero.subtitle")}
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="#stays"
-              className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
-            >
-              {t("hero.exploreCta")}
-            </Link>
-            <Link
-              href={`/hotels/${featured.id}`}
-              className="rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
-            >
-              {t("hero.featuredCta")}
-            </Link>
-          </div>
-        </div>
-      </section>
-
+      <HeroesSection />
       {/* Featured stay strip */}
-      <section className="mx-auto -mt-12 max-w-6xl px-4 sm:px-6">
+      <section className="mx-auto mt-12 max-w-6xl px-4 sm:px-6">
         <Link
           href={`/hotels/${featured.id}`}
           className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-lift sm:flex-row"
         >
-          <div className="relative aspect-[16/10] w-full overflow-hidden sm:aspect-auto sm:w-2/5">
+          <div className="relative aspect-16/10 w-full overflow-hidden sm:aspect-auto sm:w-2/5">
             <SafeImage
               src={featured.heroImage}
               fallbackSeed={featured.heroSeed}
@@ -136,7 +101,9 @@ export default function HomePage() {
         className="scroll-mt-20 border-t border-slate-200 bg-white"
       >
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="text-2xl font-bold text-slate-900">{t("how.title")}</h2>
+          <h2 className="text-2xl font-bold text-slate-900">
+            {t("how.title")}
+          </h2>
           <p className="mt-1 text-slate-500">{t("how.subtitle")}</p>
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
             {stepKeys.map((key, i) => (

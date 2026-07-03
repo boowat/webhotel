@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/components/navigations/Navbar";
 import { Footer } from "@/components/Footer";
 import { OptionalLoginPopup } from "@/components/OptionalLoginPopup";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
-export const metadata: Metadata = {
-  title: "Lumi Stays — Hand-picked hotels",
-  description:
-    "Book a stay at a curated collection of hotels around the world. A prototype demo.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("home");
+  return {
+    title: t("website.title"),
+    description: t("website.description"),
+    icons: {
+      icon: "/favicon.jpg",
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
