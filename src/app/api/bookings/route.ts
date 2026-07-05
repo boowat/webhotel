@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findRoomById } from "@/lib/hotels";
 import { nightsBetween, priceBreakdown } from "@/lib/pricing";
-import { addBooking, getBookings, type Booking } from "@/lib/bookings";
+import { createBooking } from "@/lib/db/booking-service";
 import { sendBookingConfirmation } from "@/lib/email";
 import {
   BookingRequestSchema,
@@ -110,89 +110,24 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
-
     const { hotel, room } = result;
 
-    // Guest count must not exceed room capacity
-    if (guests > room.maxGuests) {
-      return NextResponse.json(
-        {
-          status: "error",
-          message: `This room supports up to ${room.maxGuests} guests`,
-          code: "GUESTS_EXCEED_CAPACITY",
-        },
-        { status: 422 }
-      );
-    }
-
-    // Check for overlapping bookings on the same room
-    const existingBookings = getBookings();
-    const hasConflict = existingBookings.some(
-      (b) =>
-        b.roomId === room_id &&
-        b.status === "confirmed" &&
-        check_in_date < b.checkOut &&
-        check_out_date > b.checkIn
-    );
-    if (hasConflict) {
-      return NextResponse.json(
-        {
-          status: "error",
-          message:
-            "This room is already booked for the selected dates",
-          code: "ROOM_NOT_AVAILABLE",
-        },
-        { status: 409 }
-      );
-    }
-
-    /* --- Calculate pricing ---------------------------------------- */
-    const nights = nightsBetween(check_in_date, check_out_date);
-    const breakdown = priceBreakdown(room.pricePerNight, nights);
-
-    /* --- Create booking ------------------------------------------- */
-    const booking: Booking = {
-      id: uuid(),
-      bookingRef: makeBookingRef(),
-      hotelId: hotel.id,
-      hotelName: hotel.name,
-      roomId: room.id,
-      roomName: room.name,
-      checkIn: check_in_date,
-      checkOut: check_out_date,
-      nights,
-      guests,
-      guest: {
-        firstName: guest_first_name,
-        lastName: guest_last_name,
-        email: guest_email,
-        phone: guest_phone,
-      },
-      pricing: {
-        pricePerNight: room.pricePerNight,
-        roomTotal: breakdown.roomTotal,
-        serviceFee: breakdown.serviceFee,
-        taxes: breakdown.taxes,
-        total: breakdown.total,
-        currency: hotel.currency,
-      },
-      status: "confirmed",
-      createdAt: new Date().toISOString(),
-    };
-
-    addBooking(booking);
-
-    /* --- Send confirmation email ---------------------------------- */
-    const emailResult = await sendBookingConfirmation(booking);
+    // The new transactional booking service handles business logic, inventory locking,
+    // creating the booking/payment records, and calling Midtrans to get a Snap token.
+    const bookingResponse = await createBooking(hotel.id, parsed.data);
 
     /* --- Success response ----------------------------------------- */
     return NextResponse.json(
       {
         status: "success",
-        message: "Booking confirmed successfully",
+        message: "Booking initiated successfully. Please complete payment.",
         data: {
-          booking_id: booking.id,
-          booking_ref: booking.bookingRef,
+          booking_id: bookingResponse.bookingId,
+          booking_ref: bookingResponse.bookingRef,
+          snap_token: bookingResponse.snapToken,
+          snap_redirect_url: bookingResponse.snapRedirectUrl,
+          payment_deadline: bookingResponse.paymentDeadline,
+          status: bookingResponse.status,
           hotel: {
             name: hotel.name,
             city: hotel.city,
@@ -202,35 +137,44 @@ export async function POST(request: NextRequest) {
             id: room.id,
             name: room.name,
           },
-          check_in_date: booking.checkIn,
-          check_out_date: booking.checkOut,
-          nights: booking.nights,
-          guests: booking.guests,
+          check_in_date: check_in_date,
+          check_out_date: check_out_date,
+          guests: guests,
           guest: {
-            first_name: booking.guest.firstName,
-            last_name: booking.guest.lastName,
-            email: booking.guest.email,
-          },
-          pricing: {
-            price_per_night: booking.pricing.pricePerNight,
-            room_total: booking.pricing.roomTotal,
-            service_fee: booking.pricing.serviceFee,
-            taxes: booking.pricing.taxes,
-            total: booking.pricing.total,
-            currency: booking.pricing.currency,
-          },
-          status: booking.status,
-          created_at: booking.createdAt,
-          notification: {
-            email_sent: emailResult.success,
-            email_preview_url: emailResult.previewUrl || null,
+            first_name: guest_first_name,
+            last_name: guest_last_name,
+            email: guest_email,
           },
         },
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("POST /api/bookings error:", error);
+    
+    // Map specific service errors to HTTP responses
+    if (error.message === "ROOM_NOT_AVAILABLE") {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "This room is already booked for the selected dates",
+          code: "ROOM_NOT_AVAILABLE",
+        },
+        { status: 409 }
+      );
+    }
+    
+    if (error.message.includes("high traffic")) {
+       return NextResponse.json(
+        {
+          status: "error",
+          message: "Too many concurrent requests. Please try again.",
+          code: "CONCURRENCY_ERROR",
+        },
+        { status: 429 }
+      );
+    }
+
     return NextResponse.json(
       {
         status: "error",
@@ -246,8 +190,14 @@ export async function POST(request: NextRequest) {
 /*  GET /api/bookings (optional — list bookings for debug / admin)     */
 /* ------------------------------------------------------------------ */
 
+import { prisma } from "@/lib/db/prisma";
+
 export async function GET() {
-  const bookings = getBookings();
+  const bookings = await prisma.booking.findMany({
+    include: { guest: true, payment: true },
+    orderBy: { createdAt: "desc" },
+  });
+
   return NextResponse.json({
     status: "success",
     message: "Bookings retrieved successfully",
@@ -256,18 +206,26 @@ export async function GET() {
         booking_id: b.id,
         booking_ref: b.bookingRef,
         room_id: b.roomId,
-        room_name: b.roomName,
-        check_in_date: b.checkIn,
-        check_out_date: b.checkOut,
+        check_in_date: b.checkIn.toISOString().split("T")[0],
+        check_out_date: b.checkOut.toISOString().split("T")[0],
         nights: b.nights,
-        guests: b.guests,
+        guests: b.guestsCount,
         guest: {
           first_name: b.guest.firstName,
           last_name: b.guest.lastName,
           email: b.guest.email,
         },
-        pricing: b.pricing,
+        pricing: {
+          price_per_night: Number(b.pricePerNight),
+          room_total: Number(b.roomTotal),
+          service_fee: Number(b.serviceFee),
+          taxes: Number(b.taxes),
+          total: Number(b.total),
+          currency: b.currency,
+        },
         status: b.status,
+        payment_status: b.payment?.status,
+        payment_deadline: b.paymentDeadline,
         created_at: b.createdAt,
       })),
       total_items: bookings.length,

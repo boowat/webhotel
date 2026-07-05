@@ -1,5 +1,32 @@
 import nodemailer from "nodemailer";
-import type { Booking } from "./bookings";
+export interface Booking {
+  id: string;
+  bookingRef: string;
+  hotelId: string;
+  hotelName: string;
+  roomId: string;
+  roomName: string;
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  guests: number;
+  guest: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  };
+  pricing: {
+    pricePerNight: number;
+    roomTotal: number;
+    serviceFee: number;
+    taxes: number;
+    total: number;
+    currency: string;
+  };
+  status: "confirmed" | "pending" | "expired" | "cancelled";
+  createdAt: string;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Transporter                                                        */
