@@ -208,7 +208,7 @@ export function BookingFlow({
   }
 
   const inputCls =
-    "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500";
+    "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary";
   const labelCls = "mb-1 block text-xs font-medium text-slate-500";
 
   if (confirmed) {
@@ -446,7 +446,7 @@ export function BookingFlow({
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-full bg-brand-600 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed lg:hidden"
+            className="w-full rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed lg:hidden"
           >
             {submitting ? <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-white-600"></div> : <></>}
             {submitting ? "Processing…" : `Confirm booking · ${formatCurrency(breakdown.total, hotel.currency)}`}
@@ -530,7 +530,7 @@ export function BookingFlow({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? "Processing…" : "Confirm booking"}
                 </button>
@@ -649,7 +649,7 @@ function ConfirmationView({
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <Link
           href="/"
-          className="rounded-full bg-brand-600 px-6 py-3 text-center text-sm font-semibold text-white transition hover:bg-brand-700"
+          className="rounded-full bg-primary px-6 py-3 text-center text-sm font-semibold text-white transition hover:bg-primary/90"
         >
           Back to all stays
         </Link>

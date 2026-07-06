@@ -5,7 +5,7 @@ export function Footer() {
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-600 text-white">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-white">
                 <svg
                   width="15"
                   height="15"

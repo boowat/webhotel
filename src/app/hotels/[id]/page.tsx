@@ -78,9 +78,9 @@ export default function HotelDetailPage({
               {hotel.highlights.map((h) => (
                 <li
                   key={h}
-                  className="flex items-start gap-2 rounded-xl bg-brand-50/60 px-3 py-2.5 text-sm text-slate-700"
+                  className="flex items-start gap-2 rounded-xl bg-primary/10 px-3 py-2.5 text-sm text-slate-700"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0 text-brand-600" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0 text-primary" aria-hidden="true">
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
                   {h}
@@ -137,7 +137,7 @@ export default function HotelDetailPage({
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                         {review.author.charAt(0)}
                       </span>
                       <div>
