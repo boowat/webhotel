@@ -79,7 +79,7 @@ export function OptionalLoginPopup() {
           </button>
 
           <div className="flex items-start gap-3 pr-8">
-            <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white">
+            <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
               <svg
                 aria-hidden="true"
                 className="h-5 w-5"
@@ -98,7 +98,7 @@ export function OptionalLoginPopup() {
               </svg>
             </span>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-brand-200">
+              <p className="text-xs font-semibold uppercase tracking-wider text-white/70">
                 Member offer
               </p>
               <h2
@@ -121,7 +121,7 @@ export function OptionalLoginPopup() {
 
               <div className="mt-5 grid gap-2">
                 <button
-                  className="rounded-full bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700"
+                  className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
                   onClick={() => setStep("create")}
                   type="button"
                 >
@@ -160,7 +160,7 @@ export function OptionalLoginPopup() {
                 Email address
               </label>
               <input
-                className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-900 outline-hidden transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
+                className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-900 outline-hidden transition placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/20"
                 id="optional-login-email"
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="you@example.com"
@@ -171,7 +171,7 @@ export function OptionalLoginPopup() {
 
               <label className="mt-3 flex items-start gap-2 text-xs leading-5 text-slate-500">
                 <input
-                  className="mt-1 h-4 w-4 rounded-sm border-slate-300 text-brand-600 focus:ring-brand-500"
+                  className="mt-1 h-4 w-4 rounded-sm border-slate-300 text-primary focus:ring-primary"
                   defaultChecked
                   type="checkbox"
                 />
@@ -180,7 +180,7 @@ export function OptionalLoginPopup() {
 
               <div className="mt-5 grid gap-2">
                 <button
-                  className="rounded-full bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700"
+                  className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
                   type="submit"
                 >
                   {step === "create" ? "Create account" : "Sign in"}

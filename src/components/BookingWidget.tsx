@@ -66,7 +66,7 @@ export function BookingWidget({ hotel }: { hotel: Hotel }) {
           <select
             value={roomId}
             onChange={(e) => setRoomId(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
           >
             {hotel.rooms.map((r) => (
               <option key={r.id} value={r.id}>
@@ -91,7 +91,7 @@ export function BookingWidget({ hotel }: { hotel: Hotel }) {
                   setCheckOut(addDays(e.target.value, 2));
                 }
               }}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
             />
           </label>
           <label className="block">
@@ -103,7 +103,7 @@ export function BookingWidget({ hotel }: { hotel: Hotel }) {
               value={checkOut}
               min={checkIn ? addDays(checkIn, 1) : todayISO()}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
             />
           </label>
         </div>
@@ -115,7 +115,7 @@ export function BookingWidget({ hotel }: { hotel: Hotel }) {
           <select
             value={guests}
             onChange={(e) => setGuests(Number(e.target.value))}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-hidden focus:ring-1 focus:ring-brand-500"
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
           >
             {Array.from({ length: room.maxGuests }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>
@@ -160,7 +160,7 @@ export function BookingWidget({ hotel }: { hotel: Hotel }) {
       <button
         onClick={reserve}
         disabled={!datesValid || !guestsValid}
-        className="mt-4 w-full rounded-full bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+        className="mt-4 w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-slate-300"
       >
         Reserve
       </button>
