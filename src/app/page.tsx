@@ -43,7 +43,7 @@ export default function HomePage() {
             />
           </div>
           <div className="flex flex-1 flex-col justify-center p-6 sm:p-8">
-            <span className="text-xs font-semibold uppercase tracking-wider text-brand-600">
+            <span className="text-xs font-semibold uppercase tracking-wider text-primary">
               {t("featured.label")}
             </span>
             <h2 className="mt-2 text-2xl font-bold text-slate-900">
@@ -53,7 +53,7 @@ export default function HomePage() {
               {featured.city}, {featured.country}
             </p>
             <p className="mt-3 max-w-lg text-slate-600">{featured.tagline}.</p>
-            <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-brand-700">
+            <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
               {t("featured.seeRooms")}
               <svg
                 width="16"
@@ -108,7 +108,7 @@ export default function HomePage() {
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
             {stepKeys.map((key, i) => (
               <div key={key} className="relative">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <svg
                     width="22"
                     height="22"

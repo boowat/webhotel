@@ -66,7 +66,7 @@ export function RoomCard({
           </p>
           <Link
             href={`/book/${hotelId}?room=${room.id}`}
-            className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"
+            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary/90"
           >
             Reserve
           </Link>

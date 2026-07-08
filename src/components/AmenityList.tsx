@@ -8,7 +8,7 @@ const CheckIcon = () => (
     strokeWidth="2.2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="shrink-0 text-brand-600"
+    className="shrink-0 text-primary"
     aria-hidden="true"
   >
     <path d="M20 6 9 17l-5-5" />

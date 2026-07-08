@@ -34,7 +34,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <Link
             href="#"
-            className="flex flex-row items-center gap-2 rounded-md bg-yellow-500 text-black px-4 py-2 text-sm font-medium transition hover:bg-yellow-600"
+            className="flex flex-row items-center gap-2 rounded-md btn btn-accent text-black px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
           >
             <PiBedDuotone className="w-6 h-6" />
             {t("book")}
