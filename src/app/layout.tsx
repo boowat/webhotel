@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Gloock, Raleway } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/navigations/Navbar";
+import { HeaderBar } from "@/components/navigations/Header";
 import { Footer } from "@/components/Footer";
-import { OptionalLoginPopup } from "@/components/OptionalLoginPopup";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const gloock = Gloock({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-serif",
+});
+
+const raleway = Raleway({ subsets: ["latin"], variable: "--font-sans" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("home");
@@ -28,13 +33,16 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale} className={inter.variable}>
+    <html
+      lang={locale}
+      data-theme="desindes"
+      className={`${raleway.variable} ${gloock.variable}`}
+    >
       <body className="flex min-h-screen flex-col font-sans">
         <NextIntlClientProvider>
-          <Navbar />
+          <HeaderBar />
           <main className="flex-1">{children}</main>
           <Footer />
-          <OptionalLoginPopup />
         </NextIntlClientProvider>
       </body>
     </html>

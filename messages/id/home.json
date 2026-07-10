@@ -7,6 +7,16 @@
     "featuredCta": "Lihat vila unggulan",
     "heroAlt": "Destinasi unggulan"
   },
+  "booking": {
+    "title": "Book your stay",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "guests": "Guests",
+    "adults": "Adults",
+    "children": "Children",
+    "rooms": "Rooms",
+    "bookNow": "Book now"
+  },
   "featured": {
     "label": "Penginapan unggulan",
     "seeRooms": "Lihat kamar & ketersediaan"

@@ -3,12 +3,13 @@
 @plugin "daisyui/theme" {
   name: "desindes";
   default: true;
+  prefersdark: false;
   color-scheme: light;
   --color-base-100: #f8f9f9;
   --color-base-200: #f0f1f1;
   --color-base-300: #e4e6e6;
   --color-base-content: #0f0f0f;
-  --color-primary: #03275d;
+  --color-primary: oklch(28.67% 0.1048 259);
   --color-primary-content: #f8f9f9;
   --color-secondary: #e6c466;
   --color-secondary-content: #0f0f0f;
@@ -34,8 +35,44 @@
   --noise: 0;
 }
 
+@plugin "daisyui/theme" {
+  name: "desindes-dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: #0f0f0f;
+  --color-base-200: #1a1a1a;
+  --color-base-300: #262626;
+  --color-base-content: #f8f9f9;
+  --color-primary: oklch(58% 0.1048 259);
+  --color-primary-content: #0f0f0f;
+  --color-secondary: #e6c466;
+  --color-secondary-content: #0f0f0f;
+  --color-accent: #e6c466;
+  --color-accent-content: #0f0f0f;
+  --color-neutral: #f8f9f9;
+  --color-neutral-content: #0f0f0f;
+  --color-info: oklch(74% 0.16 232.661);
+  --color-info-content: oklch(29% 0.066 243.157);
+  --color-success: oklch(76% 0.177 163.223);
+  --color-success-content: oklch(37% 0.077 168.94);
+  --color-warning: oklch(82% 0.189 84.429);
+  --color-warning-content: oklch(41% 0.112 45.904);
+  --color-error: oklch(71% 0.194 13.428);
+  --color-error-content: oklch(27% 0.105 12.094);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
 @theme {
   --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-serif: var(--font-serif), Georgia, serif;
 
   --shadow-card:
     0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
@@ -61,15 +98,26 @@
 }
 
 :root {
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Raleway", system-ui, sans-serif;
+  --font-serif: "Gloock", Georgia, serif;
 }
 
 html {
   scroll-behavior: smooth;
+  margin: 0;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-base-100 text-base-content antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif);
 }
 
 /* Hide number input spinners for the guest stepper */
