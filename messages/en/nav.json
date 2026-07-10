@@ -2,7 +2,8 @@
   "stays": "Stays",
   "howItWorks": "How it works",
   "listProperty": "List your property",
-  "signIn": "Sign in",
+  "register": "Register",
+  "login": "Login",
   "getStarted": "Get started",
   "language": "Language",
   "book": "Book a Room"

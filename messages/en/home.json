@@ -10,6 +10,16 @@
     "featuredCta": "View the featured villa",
     "heroAlt": "Featured destination"
   },
+  "booking": {
+    "title": "Book your stay",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "guests": "Guests",
+    "adults": "Adults",
+    "children": "Children",
+    "rooms": "Rooms",
+    "bookNow": "Book now"
+  },
   "featured": {
     "label": "Featured stay",
     "seeRooms": "See rooms & availability"
