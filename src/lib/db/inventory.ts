@@ -143,21 +143,40 @@ export async function confirmInventory(
   const locks = await tx.roomLock.findMany({
     where: {
       bookingId,
-      status: "ACTIVE",
+      status: { in: ["ACTIVE", "RELEASED"] },
     },
   });
 
   for (const lock of locks) {
-    // 1. Convert lock to booking
-    await tx.roomInventory.update({
-      where: { id: lock.roomInventoryId },
-      data: {
-        lockedUnits: { decrement: 1 },
-        bookedUnits: { increment: 1 },
-      },
-    });
+    if (lock.status === "ACTIVE") {
+      await tx.roomInventory.update({
+        where: { id: lock.roomInventoryId },
+        data: {
+          lockedUnits: { decrement: 1 },
+          bookedUnits: { increment: 1 },
+        },
+      });
+    } else {
+      const inventory = await tx.roomInventory.findUniqueOrThrow({
+        where: { id: lock.roomInventoryId },
+      });
+      const available =
+        inventory.totalUnits - inventory.bookedUnits - inventory.lockedUnits;
 
-    // 2. Update lock status
+      if (available <= 0) {
+        throw new Error(
+          `No availability to restore paid booking ${bookingId}`
+        );
+      }
+
+      await tx.roomInventory.update({
+        where: { id: lock.roomInventoryId },
+        data: {
+          bookedUnits: { increment: 1 },
+        },
+      });
+    }
+
     await tx.roomLock.update({
       where: { id: lock.id },
       data: { status: "CONVERTED" },

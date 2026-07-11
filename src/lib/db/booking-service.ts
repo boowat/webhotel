@@ -6,7 +6,10 @@ import {
   confirmInventory,
   releaseInventory,
 } from "./inventory";
-import { createSnapTransaction } from "./midtrans";
+import {
+  createSnapTransaction,
+  getBookingRefFromMidtransOrderId,
+} from "./midtrans";
 import { getRoom } from "../hotels";
 import { nightsBetween, priceBreakdown } from "../pricing";
 import type { BookingRequest } from "../schemas/booking";
@@ -199,13 +202,19 @@ export async function createBooking(
 // Confirm Booking (Payment Success)
 // ------------------------------------------------------------------
 
+export interface ConfirmBookingPaymentResult {
+  bookingId: string;
+  bookingRef: string;
+  confirmedNow: boolean;
+}
+
 export async function confirmBookingPayment(
   midtransOrderId: string,
   gatewayRef?: string,
   paymentMethod?: string
-) {
-  // Extract bookingRef from LUMI-ABCDEF
-  const bookingRef = midtransOrderId.replace("LUMI-", "");
+): Promise<ConfirmBookingPaymentResult> {
+  const bookingRef = getBookingRefFromMidtransOrderId(midtransOrderId);
+  let result: ConfirmBookingPaymentResult | null = null;
 
   await prisma.$transaction(async (tx) => {
     const booking = await tx.booking.findUnique({
@@ -217,6 +226,11 @@ export async function confirmBookingPayment(
     
     // Idempotency: if already confirmed, do nothing
     if (booking.status === "CONFIRMED" || booking.payment?.status === "PAID") {
+      result = {
+        bookingId: booking.id,
+        bookingRef: booking.bookingRef,
+        confirmedNow: false,
+      };
       return;
     }
 
@@ -240,7 +254,19 @@ export async function confirmBookingPayment(
 
     // Confirm inventory (convert lock to booking)
     await confirmInventory(booking.id, tx);
+
+    result = {
+      bookingId: booking.id,
+      bookingRef: booking.bookingRef,
+      confirmedNow: true,
+    };
   });
+
+  if (!result) {
+    throw new Error("Booking confirmation failed");
+  }
+
+  return result;
 }
 
 // ------------------------------------------------------------------
