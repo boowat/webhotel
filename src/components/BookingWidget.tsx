@@ -11,8 +11,11 @@ import {
   todayISO,
 } from "@/lib/pricing";
 import { StarRating } from "./StarRating";
+import { useTranslations } from "next-intl";
+import { PiDoorOpenDuotone } from "react-icons/pi";
 
 export function BookingWidget({ hotel }: { hotel: Hotel }) {
+  const t = useTranslations("home");
   const router = useRouter();
   const [roomId, setRoomId] = useState(hotel.rooms[0].id);
   const [checkIn, setCheckIn] = useState("");
@@ -30,7 +33,7 @@ export function BookingWidget({ hotel }: { hotel: Hotel }) {
   const nights = nightsBetween(checkIn, checkOut);
   const breakdown = useMemo(
     () => priceBreakdown(room.pricePerNight, nights),
-    [room.pricePerNight, nights]
+    [room.pricePerNight, nights],
   );
 
   const datesValid = nights > 0;
@@ -117,11 +120,13 @@ export function BookingWidget({ hotel }: { hotel: Hotel }) {
             onChange={(e) => setGuests(Number(e.target.value))}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
           >
-            {Array.from({ length: room.maxGuests }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>
-                {n} {n === 1 ? "guest" : "guests"}
-              </option>
-            ))}
+            {Array.from({ length: room.maxGuests }, (_, i) => i + 1).map(
+              (n) => (
+                <option key={n} value={n}>
+                  {n} {n === 1 ? "guest" : "guests"}
+                </option>
+              ),
+            )}
           </select>
         </label>
       </div>
@@ -160,9 +165,10 @@ export function BookingWidget({ hotel }: { hotel: Hotel }) {
       <button
         onClick={reserve}
         disabled={!datesValid || !guestsValid}
-        className="mt-4 w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-slate-300"
+        className="mt-4 w-full rounded-md bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-slate-300 hover:cursor-pointer"
       >
-        Reserve
+        <PiDoorOpenDuotone className="mr-2 inline-block h-4 w-4" />
+        {t("booking.bookNow")}
       </button>
       <p className="mt-2 text-center text-xs text-slate-400">
         You won&apos;t be charged — this is a demo.
