@@ -18,7 +18,12 @@
     "adults": "Adults",
     "children": "Children",
     "rooms": "Rooms",
-    "bookNow": "Book now"
+    "venues": "Venues",
+    "bookNow": "Book now",
+    "search": "Search",
+    "date": "Date",
+    "time": "Time",
+    "selectVenue": "Select a venue"
   },
   "featured": {
     "label": "Featured stay",

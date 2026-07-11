@@ -1,3 +1,4 @@
+import BookingForm from "@/components/booking/BookingForm";
 import HeroesSection from "@/components/home/heroes";
 import SectionOne from "@/components/home/sectionOne";
 
@@ -9,6 +10,7 @@ export default function HomePage() {
     <>
       {/* Hero */}
       <HeroesSection />
+      <BookingForm />
       <SectionOne />
     </>
   );
