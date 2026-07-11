@@ -120,8 +120,8 @@ export default function BookingForm() {
           0,
           Math.round(
             (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
-              86400000
-          )
+              86400000,
+          ),
         )
       : 0;
 
@@ -216,13 +216,37 @@ export default function BookingForm() {
                     months={1}
                   >
                     <span slot="previous" className="inline-flex">
-                      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M15.75 19.5 8.25 12l7.5-7.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M15.75 19.5 8.25 12l7.5-7.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </span>
                     <span slot="next" className="inline-flex">
-                      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="m8.25 4.5 7.5 7.5-7.5 7.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </span>
                     <calendar-month></calendar-month>
