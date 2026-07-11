@@ -39,18 +39,17 @@ export function HeaderBar() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Link
             href="#"
-            className="flex flex-row items-center gap-2 px-4 py-2 text-base text-primary font-me transition-colors duration-200"
+            className="flex flex-row items-center gap-2 px-4 py-2 text-base text-primary font-medium transition-colors duration-200"
           >
             {t("login")}
           </Link>
           <Link
             href="#"
-            className="flex flex-row items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-white transition-colors duration-200 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
+            className="flex flex-row items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-content transition-colors duration-200 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
           >
-            <PiBedDuotone className="w-6 h-6" />
             {t("register")}
           </Link>
         </div>

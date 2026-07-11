@@ -6,6 +6,9 @@ const withNextIntl = createNextIntlPlugin("./src/lib/i18n/request.ts");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Cally ships as ESM-only web components; let Next transpile it so the
+  // client-side `import("cally")` registers the custom elements reliably.
+  transpilePackages: ["cally"],
 };
 
 export default withNextIntl(nextConfig);
