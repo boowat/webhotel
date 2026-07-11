@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Hotel } from "@/lib/types";
 import { SafeImage } from "./SafeImage";
+import Script from "next/script";
 import {
   addDays,
   formatCurrency,
@@ -25,9 +26,6 @@ interface GuestForm {
   lastName: string;
   email: string;
   phone: string;
-  card: string;
-  expiry: string;
-  cvc: string;
 }
 
 const emptyForm: GuestForm = {
@@ -35,9 +33,6 @@ const emptyForm: GuestForm = {
   lastName: "",
   email: "",
   phone: "",
-  card: "",
-  expiry: "",
-  cvc: "",
 };
 
 export function BookingFlow({
@@ -55,14 +50,71 @@ export function BookingFlow({
   const [checkIn, setCheckIn] = useState(initialCheckIn ?? "");
   const [checkOut, setCheckOut] = useState(initialCheckOut ?? "");
   const [guests, setGuests] = useState(initialGuests ?? 2);
-  // Credit card unvisualized hanya untuk mengirim nomor kartu ke server
-  const [creditCardUnvisualizedNumber, setCreditCardUnvisualizedNumber] = useState<number>();
-  // Untuk dinamis input ke user
-  const [creditCardVisualized, setCreditCardVisualized] = useState<string>("");
   const [form, setForm] = useState<GuestForm>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [confirmed, setConfirmed] = useState<{ ref: string } | null>(null);
+  const [confirmed, setConfirmed] = useState<{ ref: string; id: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
+
+  const syncBookingStatus = useCallback(
+    async (bookingId: string, fallbackRef?: string) => {
+      const res = await fetch(`/api/bookings/${bookingId}/status`, {
+        cache: "no-store",
+      });
+      const data = await res.json();
+
+      if (data.status !== "success") {
+        return null;
+      }
+
+      const status = data.data.status;
+      console.log("[Payment Sync] Current status:", status);
+
+      if (status === "CONFIRMED") {
+        setConfirmed({
+          ref: data.data.booking_ref ?? fallbackRef ?? "",
+          id: bookingId,
+        });
+        setPendingBookingId(null);
+        setSubmitting(false);
+        window.scrollTo({ top: 0 });
+      } else if (status === "EXPIRED" || status === "CANCELLED") {
+        setErrors({
+          _general: "Payment period expired. Please try booking again.",
+        });
+        setPendingBookingId(null);
+        setSubmitting(false);
+      }
+
+      return status;
+    },
+    []
+  );
+
+  // Polling mechanism to actively check booking status from the server.
+  // This is extremely reliable, especially in local development where Midtrans
+  // redirects and callbacks might be blocked or fail.
+  useEffect(() => {
+    if (!pendingBookingId) return;
+
+    console.log(`[Polling] Started polling status for booking: ${pendingBookingId}`);
+    syncBookingStatus(pendingBookingId).catch((err) => {
+      console.error("[Polling] Initial status check failed:", err);
+    });
+
+    const interval = setInterval(async () => {
+      try {
+        await syncBookingStatus(pendingBookingId);
+      } catch (err) {
+        console.error("[Polling] Error checking status:", err);
+      }
+    }, 3000);
+
+    return () => {
+      console.log("[Polling] Stopped polling");
+      clearInterval(interval);
+    };
+  }, [pendingBookingId, syncBookingStatus]);
 
   // Fill sensible default dates on the client if none were passed in.
   useEffect(() => {
@@ -85,24 +137,7 @@ export function BookingFlow({
     setErrors((e) => ({ ...e, [field]: "" }));
   }
 
-  const luhnCheck = (value: string): boolean => {
-    // Remove any non‑digit characters (e.g., spaces or dashes) to ensure a clean numeric string
-    const digits = value.replace(/\D/g, "");
-    if (digits.length === 0) return false;
-    let sum = 0;
-    let shouldDouble = false;
-    // Iterate from right‑most digit to left‑most
-    for (let i = digits.length - 1; i >= 0; i--) {
-      let digit = parseInt(digits.charAt(i), 10);
-      if (shouldDouble) {
-        digit *= 2;
-        if (digit > 9) digit -= 9;
-      }
-      sum += digit;
-      shouldDouble = !shouldDouble;
-    }
-    return sum % 10 === 0;
-  }
+
 
   function validate(): boolean {
     const next: Record<string, string> = {};
@@ -110,25 +145,6 @@ export function BookingFlow({
     if (!form.lastName.trim()) next.lastName = "Required";
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email))
       next.email = "Enter a valid email";
-    if (!form.card.trim()) next.card = "Required (use any Luhn-verified number)";
-    if (!luhnCheck(form.card)) next.card = "Invalid credit card number";
-    if (!/^[0-1][0-9]\/\d{2}$/.test(form.expiry)) {
-      next.expiry = "Format: MM/YY";
-    } else {
-      const [mm, yy] = form.expiry.split("/").map((v) => parseInt(v, 10));
-      const expYear = 2000 + yy;
-      const expMonth = mm;
-      const today = new Date();
-      const currentYear = today.getFullYear();
-      const currentMonth = today.getMonth() + 1;
-      if (
-        expYear < currentYear ||
-        (expYear === currentYear && expMonth < currentMonth)
-      ) {
-        next.expiry = "Expired card. Please use a valid card.";
-      }
-    }
-    if (!form.cvc.match(/^[0-9]{3,4}$/)) next.cvc = "Enter valid 3 or 4-digit CVC";
     if (nights <= 0) next.dates = "Choose valid dates";
     if (guests > room.maxGuests)
       next.guests = `This room sleeps up to ${room.maxGuests}`;
@@ -158,9 +174,6 @@ export function BookingFlow({
           guest_last_name: form.lastName,
           guest_email: form.email,
           guest_phone: form.phone || undefined,
-          card_number: form.card.replace(/\D/g, ""),
-          card_expiry: form.expiry,
-          card_cvc: form.cvc,
         }),
       });
 
@@ -175,9 +188,6 @@ export function BookingFlow({
               ?.replace("guest_first_name", "firstName")
               .replace("guest_last_name", "lastName")
               .replace("guest_email", "email")
-              .replace("card_number", "card")
-              .replace("card_expiry", "expiry")
-              .replace("card_cvc", "cvc")
               .replace("check_in_date", "dates")
               .replace("check_out_date", "dates") ?? "_general";
             fieldMap[key] = err.message;
@@ -186,26 +196,63 @@ export function BookingFlow({
         } else {
           setErrors({ _general: data.message || "Booking failed" });
         }
+        setSubmitting(false);
         return;
       }
 
-      setConfirmed({ ref: data.data.booking_ref });
-      if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+      // Open Midtrans Snap popup and start polling
+      if (typeof window !== "undefined" && (window as any).snap) {
+        const bookingId = data.data.booking_id;
+        const bookingRef = data.data.booking_ref;
+
+        // Set pendingBookingId to trigger the active polling useEffect
+        setPendingBookingId(bookingId);
+
+        (window as any).snap.pay(data.data.snap_token, {
+          onSuccess: async function (result: any) {
+            console.log("[Snap] onSuccess fired", result);
+            try {
+              await syncBookingStatus(bookingId, bookingRef);
+            } catch (err) {
+              console.error("[Snap] Status check failed:", err);
+            }
+          },
+          onPending: function (result: any) {
+            console.log("[Snap] onPending fired", result);
+            syncBookingStatus(bookingId, bookingRef).catch((err) => {
+              console.error("[Snap] Pending status check failed:", err);
+            });
+          },
+          onError: function (result: any) {
+            console.log("[Snap] onError fired", result);
+            setErrors({ _general: "Payment failed. Please try again." });
+            setPendingBookingId(null);
+            setSubmitting(false);
+          },
+          onClose: function () {
+            console.log("[Snap] onClose fired");
+            syncBookingStatus(bookingId, bookingRef).catch((err) => {
+              console.error("[Snap] Close status check failed:", err);
+            });
+            // Do not reset pendingBookingId on close, because the user
+            // might have completed payment through another window/tab,
+            // or we want to keep checking status. But if they just closed it
+            // without paying, we let the polling run for a bit or let them retry.
+            // Let's keep polling running to catch any late payments.
+          },
+        });
+      } else {
+        setErrors({ _general: "Payment gateway is not loaded. Please refresh the page." });
+        setSubmitting(false);
+      }
+
     } catch {
       setErrors({ _general: "Network error. Please try again." });
-    } finally {
       setSubmitting(false);
     }
   }
 
-  const changeCreditCardNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
-    const visualization = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
-    setCreditCardVisualized(visualization);
-    setCreditCardUnvisualizedNumber(Number(digits));
-    setErrors((er) => ({ ...er, card: "" }));
-    update("card", digits);
-  }
+
 
   const inputCls =
     "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary";
@@ -222,6 +269,7 @@ export function BookingFlow({
         nights={nights}
         total={breakdown.total}
         bookingRef={confirmed.ref}
+        bookingId={confirmed.id}
         guestName={`${form.firstName} ${form.lastName}`.trim()}
         guestEmail={form.email}
       />
@@ -229,7 +277,17 @@ export function BookingFlow({
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <>
+      <Script
+        src={
+          process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true"
+            ? "https://app.midtrans.com/snap/snap.js"
+            : "https://app.sandbox.midtrans.com/snap/snap.js"
+        }
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="lazyOnload"
+      />
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <nav className="mb-4 text-sm text-slate-500">
         <Link href="/" className="hover:text-slate-900">
           Stays
@@ -387,55 +445,7 @@ export function BookingFlow({
             </div>
           </section>
 
-          {/* Payment (mock) */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-slate-900">Payment</h2>
-              <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
-                Demo — no real charge
-              </span>
-            </div>
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <label className="block sm:col-span-2">
-                <span className={labelCls}>Card number</span>
-                <input
-                  value={creditCardVisualized}
-                  onChange={(e) => changeCreditCardNumber(e)}
-                  className={inputCls}
-                  placeholder="4242 4242 4242 4242"
-                  inputMode="numeric"
-                />
-                {errors.card && (
-                  <p className="mt-1 text-xs text-red-500">{errors.card}</p>
-                )}
-              </label>
-              <label className="block">
-                <span className={labelCls}>Expiry</span>
-                <input
-                  value={form.expiry}
-                  onChange={(e) => update("expiry", e.target.value)}
-                  className={inputCls}
-                  placeholder="12/28"
-                />
-                {errors.expiry && (
-                  <p className="mt-1 text-xs text-red-500">{errors.expiry}</p>
-                )}
-              </label>
-              <label className="block">
-                <span className={labelCls}>CVC</span>
-                <input
-                  value={form.cvc}
-                  onChange={(e) => update("cvc", e.target.value)}
-                  className={inputCls}
-                  placeholder="123"
-                  inputMode="numeric"
-                />
-                {errors.cvc && (
-                  <p className="mt-1 text-xs text-red-500">{errors.cvc}</p>
-                )}
-              </label>
-            </div>
-          </section>
+
 
           {errors._general && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -543,6 +553,7 @@ export function BookingFlow({
         </div>
       </form>
     </div>
+    </>
   );
 }
 
@@ -555,6 +566,7 @@ function ConfirmationView({
   nights,
   total,
   bookingRef,
+  bookingId,
   guestName,
   guestEmail,
 }: {
@@ -566,9 +578,22 @@ function ConfirmationView({
   nights: number;
   total: number;
   bookingRef: string;
+  bookingId: string;
   guestName: string;
   guestEmail: string;
 }) {
+  // Auto-check status on mount to sync with Midtrans
+  // This is the safety net: even if onSuccess didn't trigger the check,
+  // this will ensure the DB gets updated.
+  useEffect(() => {
+    if (!bookingId) return;
+    console.log("[ConfirmationView] Auto-checking status for:", bookingId);
+    fetch(`/api/bookings/${bookingId}/status`)
+      .then(res => res.json())
+      .then(data => console.log("[ConfirmationView] Status result:", data))
+      .catch(err => console.error("[ConfirmationView] Status check failed:", err));
+  }, [bookingId]);
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <div className="flex flex-col items-center text-center">

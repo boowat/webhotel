@@ -16,6 +16,11 @@ if (!serverKey || !clientKey) {
   );
 }
 
+// Bypass TLS verification for local development (fixes self-signed cert errors)
+if (!isProduction) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+}
+
 // Snap instance for creating transactions
 export const snap = new midtransClient.Snap({
   isProduction,
@@ -39,6 +44,71 @@ export interface SnapResponse {
   redirect_url: string;
 }
 
+const ORDER_PREFIX = "LUMI-";
+
+export function getMidtransOrderId(bookingRef: string): string {
+  return bookingRef.startsWith(ORDER_PREFIX)
+    ? bookingRef
+    : `${ORDER_PREFIX}${bookingRef}`;
+}
+
+export function getLegacyMidtransOrderId(bookingRef: string): string {
+  return `${ORDER_PREFIX}${getMidtransOrderId(bookingRef)}`;
+}
+
+export function getMidtransOrderIdCandidates(
+  bookingRef: string,
+  recordedOrderId?: string | null
+): string[] {
+  return Array.from(
+    new Set(
+      [
+        recordedOrderId,
+        getMidtransOrderId(bookingRef),
+        getLegacyMidtransOrderId(bookingRef),
+      ].filter((value): value is string => Boolean(value))
+    )
+  );
+}
+
+export function getBookingRefFromMidtransOrderId(orderId: string): string {
+  const trimmed = orderId.trim();
+  const legacyDoublePrefix = `${ORDER_PREFIX}${ORDER_PREFIX}`;
+  const bookingRef = trimmed.startsWith(legacyDoublePrefix)
+    ? trimmed.slice(ORDER_PREFIX.length)
+    : trimmed;
+
+  return bookingRef.startsWith(ORDER_PREFIX)
+    ? bookingRef
+    : `${ORDER_PREFIX}${bookingRef}`;
+}
+
+export function isMidtransPaymentSuccessful(statusResponse: any): boolean {
+  const transactionStatus = statusResponse?.transaction_status;
+  const fraudStatus = statusResponse?.fraud_status;
+
+  return (
+    transactionStatus === "settlement" ||
+    (transactionStatus === "capture" && fraudStatus === "accept")
+  );
+}
+
+export function isMidtransPaymentFailed(statusResponse: any): boolean {
+  return ["cancel", "deny", "expire"].includes(
+    statusResponse?.transaction_status
+  );
+}
+
+export function isMidtransNotFoundError(error: any): boolean {
+  return Number(error?.httpStatusCode ?? error?.ApiResponse?.status_code) === 404;
+}
+
+function getMidtransErrorSummary(error: any): string {
+  const code = error?.httpStatusCode ?? error?.ApiResponse?.status_code;
+  const message = String(error?.message ?? error);
+  return code ? `${message} (code ${code})` : message;
+}
+
 // ------------------------------------------------------------------
 // Transaction Creation
 // ------------------------------------------------------------------
@@ -56,7 +126,7 @@ export async function createSnapTransaction(
   }
   const { hotel, room } = result;
 
-  const orderId = `LUMI-${booking.bookingRef}`;
+  const orderId = getMidtransOrderId(booking.bookingRef);
   const timeoutMinutes = Number(process.env.PAYMENT_TIMEOUT_MINUTES) || 15;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
@@ -113,7 +183,10 @@ export async function createSnapTransaction(
       redirect_url: transaction.redirect_url,
     };
   } catch (error) {
-    console.error("❌ Failed to create Midtrans Snap transaction:", error);
+    console.error(
+      "❌ Failed to create Midtrans Snap transaction:",
+      getMidtransErrorSummary(error)
+    );
     throw new Error("Failed to initialize payment gateway");
   }
 }
@@ -133,7 +206,36 @@ export async function verifyMidtransNotification(
     const statusResponse = await (core as any).transaction.notification(notificationJson);
     return statusResponse;
   } catch (error) {
-    console.error("❌ Failed to verify Midtrans notification:", error);
+    console.error(
+      "❌ Failed to verify Midtrans notification:",
+      getMidtransErrorSummary(error)
+    );
+    throw error;
+  }
+}
+
+// ------------------------------------------------------------------
+// Active Status Check (for local dev where webhooks can't reach)
+// ------------------------------------------------------------------
+
+/**
+ * Actively queries Midtrans API for the current transaction status.
+ * This is the fallback for when webhooks can't reach our server
+ * (e.g. localhost development).
+ */
+export async function checkTransactionStatus(
+  midtransOrderId: string
+): Promise<any> {
+  try {
+    const statusResponse = await (core as any).transaction.status(midtransOrderId);
+    return statusResponse;
+  } catch (error) {
+    if (!isMidtransNotFoundError(error)) {
+      console.error(
+        "❌ Failed to check Midtrans transaction status:",
+        getMidtransErrorSummary(error)
+      );
+    }
     throw error;
   }
 }
