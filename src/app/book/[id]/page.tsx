@@ -2,25 +2,27 @@ import { notFound } from "next/navigation";
 import { getHotel } from "@/lib/hotels";
 import { BookingFlow } from "@/components/BookingFlow";
 
-export function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const hotel = getHotel(params.id);
   return {
     title: hotel ? `Book ${hotel.name} — Lumi Stays` : "Book — Lumi Stays",
   };
 }
 
-export default function BookPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: {
-    room?: string;
-    checkIn?: string;
-    checkOut?: string;
-    guests?: string;
-  };
-}) {
+export default async function BookPage(
+  props: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{
+      room?: string;
+      checkIn?: string;
+      checkOut?: string;
+      guests?: string;
+    }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const hotel = getHotel(params.id);
   if (!hotel) notFound();
 

@@ -25,16 +25,13 @@ export function HeaderBar() {
       }`}
     >
       <div className="flex max-w-[1920px] items-center justify-between px-6 lg:px-8 py-2 mx-auto ">
-        <Link href="/" className="flex items-center justify-center gap-2">
+        <Link
+          href="/"
+          className="flex items-center justify-center gap-2 border-2 rounded-lg px-4 py-2 border-primary"
+        >
           <PiBuildingApartmentDuotone className="w-6 h-6 text-primary" />
-          {/* <Image
-            src="/logo.png"
-            alt="Hotel Des Indes"
-            width={60}
-            height={30}
-            priority
-          /> */}
-          <span className="text-lg font-bold text-primary font-serif">
+
+          <span className="text-md font-bold text-primary font-serif">
             Hotel Des Indes
           </span>
         </Link>
