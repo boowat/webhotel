@@ -4,35 +4,7 @@ import { z } from "zod";
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-/** Luhn check — validates credit card numbers */
-function luhnCheck(value: string): boolean {
-  const digits = value.replace(/\D/g, "");
-  if (digits.length === 0) return false;
-  let sum = 0;
-  let shouldDouble = false;
-  for (let i = digits.length - 1; i >= 0; i--) {
-    let digit = parseInt(digits.charAt(i), 10);
-    if (shouldDouble) {
-      digit *= 2;
-      if (digit > 9) digit -= 9;
-    }
-    sum += digit;
-    shouldDouble = !shouldDouble;
-  }
-  return sum % 10 === 0;
-}
 
-/** Check that a card expiry (MM/YY) is not in the past */
-function isNotExpired(value: string): boolean {
-  const [mm, yy] = value.split("/").map((v) => parseInt(v, 10));
-  const expYear = 2000 + yy;
-  const expMonth = mm;
-  const today = new Date();
-  return !(
-    expYear < today.getFullYear() ||
-    (expYear === today.getFullYear() && expMonth < today.getMonth() + 1)
-  );
-}
 
 /* ------------------------------------------------------------------ */
 /*  ISO date string custom type                                        */
@@ -78,17 +50,7 @@ export const BookingRequestSchema = z
       .optional()
       .transform((s) => s?.trim() || undefined),
 
-    card_number: z
-      .string()
-      .min(1, "card_number is required")
-      .refine(luhnCheck, "card_number failed Luhn check"),
-    card_expiry: z
-      .string()
-      .regex(/^[0-1][0-9]\/\d{2}$/, "card_expiry must be in MM/YY format")
-      .refine(isNotExpired, "The card has expired"),
-    card_cvc: z
-      .string()
-      .regex(/^[0-9]{3,4}$/, "card_cvc must be 3 or 4 digits"),
+
   })
   .strict();
 

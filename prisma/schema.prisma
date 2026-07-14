@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────────
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum LockStatus {
+  ACTIVE
+  RELEASED
+  CONVERTED
+}
+
+// ─── Models ─────────────────────────────────────────────────
+
+/// Per-date inventory tracking for each room type.
+/// roomId references the hardcoded room ID from hotels.ts
+/// (e.g. "ocean-villa", "skyline-king").
+model RoomInventory {
+  id          String   @id @default(uuid())
+  roomId      String   @map("room_id")
+  date        DateTime @db.Date
+  totalUnits  Int      @map("total_units")
+  bookedUnits Int      @default(0) @map("booked_units")
+  lockedUnits Int      @default(0) @map("locked_units")
+  version     Int      @default(0) // optimistic locking
+
+  locks RoomLock[]
+
+  @@unique([roomId, date])
+  @@index([roomId, date])
+  @@map("room_inventory")
+}
+
+/// Tracks individual room locks tied to pending bookings.
+/// Each lock represents one unit of inventory held for a
+/// specific date while the guest completes payment.
+model RoomLock {
+  id              String     @id @default(uuid())
+  bookingId       String     @map("booking_id")
+  roomInventoryId String     @map("room_inventory_id")
+  expiresAt       DateTime   @map("expires_at")
+  status          LockStatus @default(ACTIVE)
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  booking       Booking       @relation(fields: [bookingId], references: [id])
+  roomInventory RoomInventory @relation(fields: [roomInventoryId], references: [id])
+
+  @@index([status, expiresAt])
+  @@index([bookingId])
+  @@map("room_locks")
+}
+
+/// Guest information, deduplicated by email.
+/// If the same email books again, we update their info.
+model Guest {
+  id        String   @id @default(uuid())
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  email     String   @unique
+  phone     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  bookings Booking[]
+
+  @@map("guests")
+}
+
+/// Core booking record.
+/// hotelId and roomId reference hardcoded data in hotels.ts.
+model Booking {
+  id              String        @id @default(uuid())
+  bookingRef      String        @unique @map("booking_ref")
+  hotelId         String        @map("hotel_id")
+  roomId          String        @map("room_id")
+  guestId         String        @map("guest_id")
+  checkIn         DateTime      @map("check_in") @db.Date
+  checkOut        DateTime      @map("check_out") @db.Date
+  nights          Int
+  guestsCount     Int           @map("guests_count")
+  pricePerNight   Decimal       @map("price_per_night") @db.Decimal(12, 2)
+  roomTotal       Decimal       @map("room_total") @db.Decimal(12, 2)
+  serviceFee      Decimal       @map("service_fee") @db.Decimal(12, 2)
+  taxes           Decimal       @db.Decimal(12, 2)
+  total           Decimal       @db.Decimal(12, 2)
+  currency        String        @default("USD")
+  status          BookingStatus @default(PENDING)
+  paymentDeadline DateTime?     @map("payment_deadline")
+  snapToken       String?       @map("snap_token")
+  snapRedirectUrl String?       @map("snap_redirect_url")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  guest   Guest      @relation(fields: [guestId], references: [id])
+  payment Payment?
+  locks   RoomLock[]
+
+  @@index([status, paymentDeadline])
+  @@index([roomId, checkIn, checkOut])
+  @@index([guestId])
+  @@map("bookings")
+}
+
+/// Payment tracking, linked 1:1 with Booking.
+/// Stores Midtrans transaction details.
+model Payment {
+  id              String        @id @default(uuid())
+  bookingId       String        @unique @map("booking_id")
+  amount          Decimal       @db.Decimal(12, 2)
+  currency        String        @default("USD")
+  status          PaymentStatus @default(PENDING)
+  method          String?
+  gatewayRef      String?       @map("gateway_ref")
+  midtransOrderId String?       @unique @map("midtrans_order_id")
+  paidAt          DateTime?     @map("paid_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([status])
+  @@map("payments")
+}

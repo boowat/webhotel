@@ -8,6 +8,7 @@ export interface RoomType {
   size: string;
   image: string;
   imageSeed: string;
+  totalUnits?: number; // Optional since the existing data in hotels.ts doesn't have it
 }
 
 export interface Review {
