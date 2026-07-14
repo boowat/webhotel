@@ -1,5 +1,35 @@
 import nodemailer from "nodemailer";
-import type { Booking } from "./bookings";
+import { prisma } from "./db/prisma";
+import { getRoom } from "./hotels";
+
+export interface Booking {
+  id: string;
+  bookingRef: string;
+  hotelId: string;
+  hotelName: string;
+  roomId: string;
+  roomName: string;
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  guests: number;
+  guest: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+  };
+  pricing: {
+    pricePerNight: number;
+    roomTotal: number;
+    serviceFee: number;
+    taxes: number;
+    total: number;
+    currency: string;
+  };
+  status: "confirmed" | "pending" | "expired" | "cancelled";
+  createdAt: string;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Transporter                                                        */
@@ -21,6 +51,10 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
   const port = Number(process.env.SMTP_PORT || 587);
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
+  const rejectUnauthorized =
+    process.env.SMTP_TLS_REJECT_UNAUTHORIZED === "false"
+      ? false
+      : process.env.NODE_ENV === "production";
 
   if (host && user && pass) {
     // Production / custom SMTP
@@ -29,6 +63,7 @@ async function getTransporter(): Promise<nodemailer.Transporter> {
       port,
       secure: port === 465,
       auth: { user, pass },
+      tls: { rejectUnauthorized },
     });
   } else {
     // Development → try Ethereal, fall back to JSON/console transport
@@ -299,6 +334,60 @@ export interface EmailResult {
   messageId?: string;
   previewUrl?: string | false;
   error?: string;
+}
+
+export async function sendBookingConfirmationByRef(
+  bookingRef: string
+): Promise<EmailResult> {
+  const booking = await prisma.booking.findUnique({
+    where: { bookingRef },
+    include: { guest: true, payment: true },
+  });
+
+  if (!booking) {
+    return {
+      success: false,
+      error: `Booking not found: ${bookingRef}`,
+    };
+  }
+
+  const result = getRoom(booking.hotelId, booking.roomId);
+  if (!result) {
+    return {
+      success: false,
+      error: `Room not found: ${booking.roomId}`,
+    };
+  }
+
+  const { hotel, room } = result;
+  return sendBookingConfirmation({
+    id: booking.id,
+    bookingRef: booking.bookingRef,
+    hotelId: booking.hotelId,
+    hotelName: hotel.name,
+    roomId: booking.roomId,
+    roomName: room.name,
+    checkIn: booking.checkIn.toISOString().split("T")[0],
+    checkOut: booking.checkOut.toISOString().split("T")[0],
+    nights: booking.nights,
+    guests: booking.guestsCount,
+    guest: {
+      firstName: booking.guest.firstName,
+      lastName: booking.guest.lastName,
+      email: booking.guest.email,
+      phone: booking.guest.phone || undefined,
+    },
+    pricing: {
+      pricePerNight: Number(booking.pricePerNight),
+      roomTotal: Number(booking.roomTotal),
+      serviceFee: Number(booking.serviceFee),
+      taxes: Number(booking.taxes),
+      total: Number(booking.total),
+      currency: booking.currency,
+    },
+    status: "confirmed",
+    createdAt: booking.createdAt.toISOString(),
+  });
 }
 
 export async function sendBookingConfirmation(
