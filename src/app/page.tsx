@@ -1,4 +1,5 @@
-import HeroesSection from "@/components/home/heroes";
+// import BookingForm from "@/components/booking/BookingForm";
+import HeroesSection from "@/components/home/Heroes";
 import SectionOne from "@/components/home/sectionOne";
 
 // Icons stay in the component; the matching copy lives in messages/<locale>/home.json
@@ -9,6 +10,7 @@ export default function HomePage() {
     <>
       {/* Hero */}
       <HeroesSection />
+      {/* <BookingForm /> */}
       <SectionOne />
     </>
   );

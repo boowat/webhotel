@@ -129,3 +129,47 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+calendar-range::part(months) {
+  display: flex;
+  gap: 1em;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/*
+  Cally date-picker accents — lighter than DaisyUI's `.cally` defaults, which
+  paint `today` solid navy and `selected` near-black (`--color-base-content`).
+  The styleable parts (today / selected / range) live in the *calendar-month*
+  shadow DOM, so they must be targeted via `calendar-month::part(...)` — NOT
+  `.cally` (that's on calendar-range and can't reach these parts). `!important`
+  overrides DaisyUI's built-in `.cally` rules.
+  Ref: github.com/saadeghi/daisyui/discussions/4379
+*/
+calendar-month::part(today),
+calendar-month::part(today):hover {
+  background-color: color-mix(
+    in oklab,
+    var(--color-primary) 20%,
+    transparent
+  ) !important;
+  color: var(--color-primary) !important;
+  font-weight: 700;
+}
+calendar-month::part(selected),
+calendar-month::part(selected):hover {
+  background-color: var(--color-secondary) !important;
+  color: var(--color-secondary-content) !important;
+}
+calendar-month::part(range-inner) {
+  background-color: color-mix(
+    in oklab,
+    var(--color-secondary) 20%,
+    transparent
+  ) !important;
+  color: var(--color-secondary-content) !important;
+}
+calendar-month::part(button):focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-primary) 45%, transparent) !important;
+  outline-offset: -2px !important;
+}

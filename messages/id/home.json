@@ -14,8 +14,13 @@
     "guests": "Guests",
     "adults": "Adults",
     "children": "Children",
+    "venues": "Venues",
     "rooms": "Rooms",
-    "bookNow": "Book now"
+    "bookNow": "Book now",
+    "search": "Cari",
+    "date": "Tanggal",
+    "time": "Jam",
+    "selectVenue": "Pilih ruangan"
   },
   "featured": {
     "label": "Penginapan unggulan",

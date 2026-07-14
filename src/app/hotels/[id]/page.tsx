@@ -11,7 +11,8 @@ export function generateStaticParams() {
   return hotels.map((h) => ({ id: h.id }));
 }
 
-export function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const hotel = getHotel(params.id);
   return {
     title: hotel ? `${hotel.name} — Lumi Stays` : "Stay not found — Lumi Stays",
@@ -25,11 +26,12 @@ const PinIcon = () => (
   </svg>
 );
 
-export default function HotelDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function HotelDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const hotel = getHotel(params.id);
   if (!hotel) notFound();
 

@@ -5,20 +5,25 @@
   },
   "hero": {
     "heading-one": "Book Our Best \n Rooms and Venues.",
-    "subtitle": "A curated collection of hotels around the world, booked in a few taps. No clutter, no noise — just places we would actually stay.",
+    "subtitle": "Exclusive and Unique Hotel — Experience Exceptional Service and Grandeur At This Unique Hotel in The City Center.",
     "exploreCta": "Explore stays",
     "featuredCta": "View the featured villa",
     "heroAlt": "Featured destination"
   },
   "booking": {
-    "title": "Book your stay",
+    "title": "Pick One of Our Stays",
     "checkIn": "Check-in",
     "checkOut": "Check-out",
     "guests": "Guests",
     "adults": "Adults",
     "children": "Children",
     "rooms": "Rooms",
-    "bookNow": "Book now"
+    "venues": "Venues",
+    "bookNow": "Book now",
+    "search": "Search",
+    "date": "Date",
+    "time": "Time",
+    "selectVenue": "Select a venue"
   },
   "featured": {
     "label": "Featured stay",

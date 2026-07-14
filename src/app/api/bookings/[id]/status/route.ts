@@ -34,10 +34,10 @@ async function checkBookingTransactionStatus(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const bookingId = params.id;
+    const bookingId = (await params).id;
     console.log(`[Status] Checking status for booking: ${bookingId}`);
 
     const booking = await prisma.booking.findUnique({
