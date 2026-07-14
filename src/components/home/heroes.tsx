@@ -9,7 +9,7 @@ const featured = hotels[0];
 export default async function HeroesSection() {
   const t = await getTranslations("home");
   return (
-    <section className="relative flex flex-row max-w-[2160px] min-h-180 -mt-24 overflow-hidden mx-auto">
+    <section className="relative flex flex-row max-w-[2160px] min-h-160 -mt-24 overflow-hidden mx-auto">
       <div className="absolute inset-0">
         <Image
           src="/banner.jpg"
@@ -22,8 +22,8 @@ export default async function HeroesSection() {
         />
         <div className="absolute inset-0 bg-linear-to-t from-primary/95 to-secondary/60" />
       </div>
-      <div className="flex flex-col w-full max-w-10/12 gap-10 px-4 py-4 lg:px-8 lg:flex-row lg:items-center lg:justify-between mx-auto mt-42 relative">
-        <div className="bg-black">
+      <div className="flex flex-col w-full max-w-10/12 gap-10 px-4 py-4 lg:px-8 lg:flex-row lg:items-center lg:justify-between mx-auto  relative">
+        <div>
           <h1 className="max-w-2xl text-4xl font-bold leading-tight text-white sm:text-5xl whitespace-pre-line">
             {t("hero.heading-one")}
           </h1>
