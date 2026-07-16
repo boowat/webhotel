@@ -12,7 +12,7 @@ import {
 } from "react-icons/pi";
 
 import { addDays, todayISO } from "@/lib/pricing";
-import { TotalGuest } from "../ui/TotalGuest";
+import { TotalGuest } from "./TotalGuest";
 
 export default function BookingForm() {
   const t = useTranslations("home");
