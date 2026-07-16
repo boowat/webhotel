@@ -21,6 +21,15 @@ Log update harian tim, async (ga perlu meeting). Board Epic/Story/Task ada di [e
 
 ---
 
+## 2026-07-16
+
+### Sandi Miftah
+
+- Kemarin: Testing endpoint booking API (`/api/bookings`), setup awal i18n (next-intl, English dulu)
+- Hari ini: Lanjut setup i18n biar scalable buat multi-bahasa, mulai upgrade Tailwind v3 → v4
+- Blocker: `SELF_SIGNED_CERT_IN_CHAIN` pas install package (kemungkinan dari Cloudflare WARP) — install `@tailwindcss/upgrade` sempat gagal, lagi dicoba manual
+- Terkait: Epic 1 / Story 1 (booking endpoint) + Icebox "Multi-bahasa (ID + EN)"
+
 ## 2026-07-06
 
 ### Sandi Miftah
