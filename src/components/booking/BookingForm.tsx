@@ -5,14 +5,15 @@ import { Button } from "@/components/ui/Button";
 import { TabContent, TabHandler } from "@/components/ui/TabContent";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { DatePicker } from "@/components/ui/SingleDatePicker";
+import { addDays, todayISO } from "@/lib/pricing";
+import { TotalGuest } from "./TotalGuest";
 import {
   PiBedDuotone,
   PiBuildingApartmentDuotone,
   PiDoorOpenDuotone,
 } from "react-icons/pi";
 
-import { addDays, todayISO } from "@/lib/pricing";
-import { TotalGuest } from "./TotalGuest";
+
 
 export default function BookingForm() {
   const t = useTranslations("home");
@@ -30,8 +31,8 @@ export default function BookingForm() {
   // Default dates are set on the client only, to avoid a hydration mismatch.
   useEffect(() => {
     const today = todayISO();
-    setCheckIn(addDays(today, 7));
-    setCheckOut(addDays(today, 9));
+    setCheckIn(addDays(today, 1));
+    setCheckOut(addDays(today, 2));
   }, []);
 
   return (
