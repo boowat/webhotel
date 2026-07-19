@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { TabContent, TabHandler } from "@/components/ui/TabContent";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { DatePicker } from "@/components/ui/SingleDatePicker";
+import { addDays, todayISO } from "@/lib/pricing";
+import { TotalGuest } from "./TotalGuest";
 import {
   PiBedDuotone,
   PiBuildingApartmentDuotone,
