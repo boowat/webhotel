@@ -1,10 +1,10 @@
 import { getTranslations } from "next-intl/server";
-import { BookingWidget } from "../BookingWidget";
+// import { BookingWidget } from "../BookingWidget";
 import Image from "next/image";
-import { hotels } from "@/lib/hotels";
+// import { hotels } from "@/lib/hotels";
 import BookingForm from "../booking/BookingForm";
 
-const featured = hotels[0];
+// const featured = hotels[0];
 
 export default async function HeroesSection() {
   const t = await getTranslations("home");
@@ -17,7 +17,6 @@ export default async function HeroesSection() {
           fill
           priority
           sizes="100vw"
-          quality={85}
           className="object-cover"
         />
         <div className="absolute inset-0 bg-linear-to-t from-primary/95 to-secondary/60" />

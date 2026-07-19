@@ -32,7 +32,7 @@ export function HeaderBar() {
           <PiBuildingApartmentDuotone className="w-6 h-6 text-primary" />
 
           <span className="text-md font-bold text-primary font-serif">
-            Hotel Des Indes
+            {t("logo")}
           </span>
         </Link>
 

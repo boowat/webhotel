@@ -12,28 +12,30 @@ Log update harian tim, async (ga perlu meeting). Board Epic/Story/Task ada di [e
 ### Template Jangan diubah
 
 ```
-### [Nama] — [YYYY-MM-DD]
-- Kemarin:
-- Hari ini:
-- Blocker:
-- Terkait: Epic X / Story X.Y
+### [Name] — [YYYY-MM-DD]
+- Yesteday: 
+- Today: 
+- Blockers: 
+- Notes:
+- Connections: Epic X / Story X.Y
 ```
 
 ---
 
-## 2026-07-16
+## Sandi Miftah - 2026-07-17
+- Yesteday: 
+- Today: 
+- Blockers: 
+- Notes:
+- Connections: Epic X / Story X.Y
 
-### Sandi Miftah
-
+### Sandi Miftah - 2026-07-16
 - Kemarin: Testing endpoint booking API (`/api/bookings`), setup awal i18n (next-intl, English dulu)
 - Hari ini: Lanjut setup i18n biar scalable buat multi-bahasa, mulai upgrade Tailwind v3 → v4
 - Blocker: `SELF_SIGNED_CERT_IN_CHAIN` pas install package (kemungkinan dari Cloudflare WARP) — install `@tailwindcss/upgrade` sempat gagal, lagi dicoba manual
 - Terkait: Epic 1 / Story 1 (booking endpoint) + Icebox "Multi-bahasa (ID + EN)"
 
-## 2026-07-06
-
-### Sandi Miftah
-
+### Sandi Miftah - 2026-07-06
 - Kemarin: Menentukan warna-warna untuk project sesuai dengan mood board
 - Hari ini: Memindahkan fitur kalendar ke banner / heroes
 - Blocker: Harus dibiasakan melakukan mobile first design
