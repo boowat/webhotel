@@ -5,9 +5,11 @@ export interface RoomType {
   pricePerNight: number;
   maxGuests: number;
   beds: string;
-  sizeArea: string;
+  size: string;
+  sizeArea?: string;
   image: string;
   imageSeed: string;
+  totalUnits?: number;
 }
 
 export interface VenueType {
@@ -27,10 +29,16 @@ export interface VenueType {
 export interface Hotel {
   id: string;
   name: string;
+  tagline: string;
+  city: string;
+  country: string;
+  address: string;
   rating: number;
   reviewCount: number;
   pricePerNight: number;
   currency: string;
+  heroImage: string;
+  heroSeed: string;
   gallery: { src: string; seed: string }[];
   description: string;
   highlights: string[];

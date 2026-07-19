@@ -7,16 +7,13 @@ import { Button } from "@/components/ui/Button";
 import { TabContent, TabHandler } from "@/components/ui/TabContent";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { DatePicker } from "@/components/ui/SingleDatePicker";
-import { addDays, todayISO } from "@/lib/pricing";
+import { addDays, nightsBetween, todayISO } from "@/lib/pricing";
 import { TotalGuest } from "./TotalGuest";
 import {
   PiBedDuotone,
   PiBuildingApartmentDuotone,
   PiDoorOpenDuotone,
 } from "react-icons/pi";
-
-import { addDays, nightsBetween, todayISO } from "@/lib/pricing";
-import { TotalGuest } from "./TotalGuest";
 
 export default function BookingForm() {
   const t = useTranslations("home");
