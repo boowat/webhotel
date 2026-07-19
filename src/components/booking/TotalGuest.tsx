@@ -50,10 +50,12 @@ function Stepper({
 }
 
 // e.g. "1 Room, 2 Adults, 1 Child"
-function summarize(rooms: number, adults: number, children: number) {
+function summarize(rooms: number, adults: number, childrenCount: number) {
   const room = `${rooms} Room${rooms === 1 ? "" : "s"}`;
   const adult = `${adults} Adult${adults === 1 ? "" : "s"}`;
-  const child = `${children} ${children === 1 ? "Child" : "Children"}`;
+  const child = `${childrenCount} ${
+    childrenCount === 1 ? "Child" : "Children"
+  }`;
   return `${room}, ${adult}, ${child}`;
 }
 
@@ -61,14 +63,14 @@ export function TotalGuest({
   label = "Guests",
   rooms,
   adults,
-  children,
+  childrenCount,
   onChange,
 }: {
   label?: string;
   rooms: number;
   adults: number;
-  children: number;
-  onChange: (rooms: number, adults: number, children: number) => void;
+  childrenCount: number;
+  onChange: (rooms: number, adults: number, childrenCount: number) => void;
 }) {
   return (
     <div className="dropdown flex w-full flex-col gap-1">
@@ -81,7 +83,9 @@ export function TotalGuest({
       >
         <span className="flex items-center gap-2 truncate">
           <PiUsersDuotone className="h-4 w-4 shrink-0 text-primary/80" />
-          <span className="truncate">{summarize(rooms, adults, children)}</span>
+          <span className="truncate">
+            {summarize(rooms, adults, childrenCount)}
+          </span>
         </span>
       </div>
 
@@ -93,19 +97,19 @@ export function TotalGuest({
           label="Rooms"
           value={rooms}
           min={1}
-          onChange={(v) => onChange(v, adults, children)}
+          onChange={(v) => onChange(v, adults, childrenCount)}
         />
         <Stepper
           label="Adults"
           hint="Ages 13+"
           value={adults}
           min={1}
-          onChange={(v) => onChange(rooms, v, children)}
+          onChange={(v) => onChange(rooms, v, childrenCount)}
         />
         <Stepper
           label="Children"
           hint="Ages 0–12"
-          value={children}
+          value={childrenCount}
           min={0}
           onChange={(v) => onChange(rooms, adults, v)}
         />
