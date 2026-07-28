@@ -23,6 +23,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# local docker overrides (personal port/config)
+docker-compose.override.yml
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
