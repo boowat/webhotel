@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { SafeImage } from "@/components/SafeImage";
-import { StarRating } from "@/components/StarRating";
 import { hotels } from "@/lib/hotels";
 import { formatCurrency, nightsBetween, priceBreakdown } from "@/lib/pricing";
 
@@ -24,11 +23,6 @@ function firstParam(value: SearchParamValue) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function allParams(value: SearchParamValue) {
-  if (!value) return [];
-  return Array.isArray(value) ? value : [value];
-}
-
 function toPositiveInt(value: SearchParamValue, fallback: number) {
   const parsed = Number(firstParam(value));
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
@@ -48,9 +42,7 @@ function toOptionalPrice(value: SearchParamValue) {
 }
 
 function getBedTypeOptions() {
-  const roomBeds = hotels.flatMap((hotel) =>
-    hotel.rooms.map((room) => room.beds.toLowerCase()),
-  );
+  const roomBeds = hotels[0].rooms.map((room) => room.beds.toLowerCase());
 
   return Object.entries(BED_TYPE_LABELS).filter(([value]) =>
     roomBeds.some((beds) => beds.includes(value)),
@@ -133,7 +125,7 @@ const SizeIcon = () => (
 );
 
 export const metadata = {
-  title: "Available rooms - Lumi Stays",
+  title: "Available rooms - Des Indes",
 };
 
 export default async function RoomSearchPage(props: RoomSearchPageProps) {
@@ -147,9 +139,8 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
   const totalGuests = Math.max(1, guests);
   const nights = nightsBetween(checkIn, checkOut);
   const hasValidDates = nights > 0;
-  const allRooms = hotels.flatMap((hotel) =>
-    hotel.rooms.map((room) => ({ hotel, room })),
-  );
+  const hotel = hotels[0];
+  const allRooms = hotel.rooms.map((room) => ({ hotel, room }));
   const minRoomPrice = Math.min(...allRooms.map(({ room }) => room.pricePerNight));
   const maxRoomPrice = Math.max(...allRooms.map(({ room }) => room.pricePerNight));
   const rawMinPrice = toOptionalPrice(searchParams.minPrice);
@@ -167,21 +158,10 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
   const selectedBedType = bedTypeOptions.some(([value]) => value === bedTypeParam)
     ? bedTypeParam
     : "";
-  const amenityOptions = Array.from(
-    new Set(hotels.flatMap((hotel) => hotel.amenities)),
-  ).sort((a, b) => a.localeCompare(b));
-  const selectedAmenities = Array.from(
-    new Set(
-      allParams(searchParams.amenities).filter((amenity) =>
-        amenityOptions.includes(amenity),
-      ),
-    ),
-  );
   const activeFilterCount =
     (rawMinPrice !== undefined ? 1 : 0) +
     (rawMaxPrice !== undefined ? 1 : 0) +
-    (selectedBedType ? 1 : 0) +
-    selectedAmenities.length;
+    (selectedBedType ? 1 : 0);
   const baseSearchParams = buildBaseSearchParams({
     checkIn,
     checkOut,
@@ -194,20 +174,14 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
   const availableRooms = hasValidDates
     ? allRooms.filter(({ room }) => room.maxGuests >= totalGuests)
     : [];
-  const filteredRooms = availableRooms.filter(({ hotel, room }) => {
+  const filteredRooms = availableRooms.filter(({ room }) => {
     const matchesMinPrice =
       minPrice === undefined || room.pricePerNight >= minPrice;
     const matchesMaxPrice =
       maxPrice === undefined || room.pricePerNight <= maxPrice;
     const matchesBedType =
       !selectedBedType || room.beds.toLowerCase().includes(selectedBedType);
-    const matchesAmenities = selectedAmenities.every((amenity) =>
-      hotel.amenities.includes(amenity),
-    );
-
-    return (
-      matchesMinPrice && matchesMaxPrice && matchesBedType && matchesAmenities
-    );
+    return matchesMinPrice && matchesMaxPrice && matchesBedType;
   });
 
   return (
@@ -346,29 +320,6 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                 </select>
               </label>
 
-              <div className="mt-5 border-t border-slate-100 pt-5">
-                <h3 className="text-sm font-semibold text-slate-900">
-                  Special amenities
-                </h3>
-                <div className="mt-3 max-h-64 space-y-2 overflow-y-auto pr-1">
-                  {amenityOptions.map((amenity) => (
-                    <label
-                      key={amenity}
-                      className="flex items-center gap-2 text-sm text-slate-600"
-                    >
-                      <input
-                        type="checkbox"
-                        name="amenities"
-                        value={amenity}
-                        defaultChecked={selectedAmenities.includes(amenity)}
-                        className="checkbox checkbox-sm border-slate-300 checked:border-primary checked:bg-primary"
-                      />
-                      <span>{amenity}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
               <button
                 type="submit"
                 className="mt-5 w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
@@ -391,8 +342,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                   No rooms match these filters
                 </h2>
                 <p className="mt-2 text-sm text-slate-600">
-                  Coba longgarkan range harga, tipe tempat tidur, atau fasilitas
-                  yang dipilih.
+                  Coba longgarkan range harga atau tipe tempat tidur yang dipilih.
                 </p>
               </div>
             ) : null}
@@ -424,20 +374,10 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                   <div className="flex flex-col gap-4 p-5">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div>
-                        <Link
-                          href={`/hotels/${hotel.id}`}
-                          className="text-sm font-semibold text-primary hover:text-primary/80"
-                        >
-                          {hotel.name}
-                        </Link>
-                        <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                        <h2 className="text-xl font-semibold text-slate-900">
                           {room.name}
                         </h2>
-                        <p className="mt-1 text-sm text-slate-500">
-                          {hotel.city}, {hotel.country}
-                        </p>
                       </div>
-                      <StarRating rating={hotel.rating} size={15} />
                     </div>
 
                     <p className="text-sm leading-relaxed text-slate-600">
@@ -454,22 +394,6 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                       <span className="inline-flex items-center gap-1.5">
                         <SizeIcon /> {room.size}
                       </span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {(selectedAmenities.length > 0
-                        ? hotel.amenities.filter((amenity) =>
-                            selectedAmenities.includes(amenity),
-                          )
-                        : hotel.amenities.slice(0, 4)
-                      ).map((amenity) => (
-                        <span
-                          key={amenity}
-                          className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
-                        >
-                          {amenity}
-                        </span>
-                      ))}
                     </div>
 
                     <div className="flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row sm:items-end sm:justify-between">
