@@ -13,29 +13,32 @@ Log update harian tim, async (ga perlu meeting). Board Epic/Story/Task ada di [e
 
 ```
 ### [Name] — [YYYY-MM-DD]
-- Yesteday: 
-- Today: 
-- Blockers: 
+- Yesterday:
+- Today:
+- Blockers:
 - Notes:
 - Connections: Epic X / Story X.Y
 ```
 
 ---
 
-## Sandi Miftah - 2026-07-17
-- Yesteday: 
-- Today: 
-- Blockers: 
+### Sandi Miftah - 2026-07-28
+
+- Yesterday: Finalizing result search filter
+- Today: create room detail. Fix dummy data. This webhotel only meant for 1 hotel, not an OTA apps
+- Blockers: Daisy UI need to implement, yet not now
 - Notes:
-- Connections: Epic X / Story X.Y
+- Connections: Epic: Reservation System & Room Booking / Story 2
 
 ### Sandi Miftah - 2026-07-16
+
 - Kemarin: Testing endpoint booking API (`/api/bookings`), setup awal i18n (next-intl, English dulu)
 - Hari ini: Lanjut setup i18n biar scalable buat multi-bahasa, mulai upgrade Tailwind v3 → v4
 - Blocker: `SELF_SIGNED_CERT_IN_CHAIN` pas install package (kemungkinan dari Cloudflare WARP) — install `@tailwindcss/upgrade` sempat gagal, lagi dicoba manual
 - Terkait: Epic 1 / Story 1 (booking endpoint) + Icebox "Multi-bahasa (ID + EN)"
 
 ### Sandi Miftah - 2026-07-06
+
 - Kemarin: Menentukan warna-warna untuk project sesuai dengan mood board
 - Hari ini: Memindahkan fitur kalendar ke banner / heroes
 - Blocker: Harus dibiasakan melakukan mobile first design
