@@ -36,6 +36,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       data-theme="desindes"
+      data-scroll-behavior="smooth"
       className={`${raleway.variable} ${gloock.variable}`}
     >
       <body className="flex min-h-screen flex-col font-sans">
