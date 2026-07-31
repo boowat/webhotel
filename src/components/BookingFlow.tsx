@@ -255,7 +255,7 @@ export function BookingFlow({
 
 
   const inputCls =
-    "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary";
+    "w-full rounded-md border border-slate-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary";
   const labelCls = "mb-1 block text-xs font-medium text-slate-500";
 
   if (confirmed) {
@@ -448,7 +448,7 @@ export function BookingFlow({
 
 
           {errors._general && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {errors._general}
             </div>
           )}
@@ -468,7 +468,7 @@ export function BookingFlow({
           <div className="space-y-4 lg:sticky lg:top-24">
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
               <div className="flex gap-3 p-4">
-                <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-lg">
+                <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-md">
                   <SafeImage
                     src={room.image}
                     fallbackSeed={room.imageSeed}

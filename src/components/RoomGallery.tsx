@@ -1,8 +1,10 @@
+import { getTranslations } from "next-intl/server";
 import { PiVirtualRealityDuotone } from "react-icons/pi";
 import { RoomType } from "@/lib/types";
 import { SafeImage } from "./SafeImage";
 
-export function RoomGallery({ room }: { room: RoomType }) {
+export async function RoomGallery({ room }: { room: RoomType }) {
+  const t = await getTranslations("room");
   const [second, third] = room.gallery ?? [];
 
   return (
@@ -39,7 +41,7 @@ export function RoomGallery({ room }: { room: RoomType }) {
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-slate-900/55 text-white">
               <PiVirtualRealityDuotone size={30} />
               <span className="text-xs font-semibold uppercase tracking-wide">
-                Virtual room
+                {t("virtualRoom")}
               </span>
             </div>
           </div>

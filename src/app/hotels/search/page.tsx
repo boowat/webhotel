@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { PiCalendarCheckDuotone } from "react-icons/pi";
 import { SafeImage } from "@/components/SafeImage";
 import { hotels } from "@/lib/hotels";
@@ -10,15 +11,15 @@ type RoomSearchPageProps = {
   searchParams: Promise<Record<string, SearchParamValue>>;
 };
 
-const BED_TYPE_LABELS: Record<string, string> = {
-  king: "King bed",
-  queen: "Queen bed",
-  twin: "Twin beds",
-  double: "Double bed",
-  single: "Single beds",
-  sofa: "Sofa bed",
-  daybed: "Daybed",
-};
+const BED_TYPE_KEYS = [
+  "king",
+  "queen",
+  "twin",
+  "double",
+  "single",
+  "sofa",
+  "daybed",
+] as const;
 
 function firstParam(value: SearchParamValue) {
   return Array.isArray(value) ? value[0] : value;
@@ -45,8 +46,8 @@ function toOptionalPrice(value: SearchParamValue) {
 function getBedTypeOptions() {
   const roomBeds = hotels[0].rooms.map((room) => room.beds.toLowerCase());
 
-  return Object.entries(BED_TYPE_LABELS).filter(([value]) =>
-    roomBeds.some((beds) => beds.includes(value)),
+  return BED_TYPE_KEYS.filter((key) =>
+    roomBeds.some((beds) => beds.includes(key)),
   );
 }
 
@@ -125,11 +126,13 @@ const SizeIcon = () => (
   </svg>
 );
 
-export const metadata = {
-  title: "Available rooms - Des Indes",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("search");
+  return { title: t("metaTitle") };
+}
 
 export default async function RoomSearchPage(props: RoomSearchPageProps) {
+  const t = await getTranslations("search");
   const searchParams = await props.searchParams;
   const checkIn = firstParam(searchParams.checkIn) ?? "";
   const checkOut = firstParam(searchParams.checkOut) ?? "";
@@ -156,7 +159,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
       : rawMaxPrice;
   const bedTypeOptions = getBedTypeOptions();
   const bedTypeParam = firstParam(searchParams.bedType)?.toLowerCase() ?? "";
-  const selectedBedType = bedTypeOptions.some(([value]) => value === bedTypeParam)
+  const selectedBedType = bedTypeOptions.some((key) => key === bedTypeParam)
     ? bedTypeParam
     : "";
   const activeFilterCount =
@@ -189,52 +192,48 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <nav className="mb-4 text-sm text-slate-500">
         <Link href="/" className="hover:text-slate-900">
-          Stays
+          {t("breadcrumbHome")}
         </Link>
         <span className="mx-2">/</span>
-        <span className="text-slate-900">Search results</span>
+        <span className="text-slate-900">{t("breadcrumbCurrent")}</span>
       </nav>
 
       <div className="flex flex-col gap-5 border-b border-slate-200 pb-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">
-            Available rooms
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-900">{t("heading")}</h1>
           <p className="mt-2 text-sm text-slate-600">
             {hasValidDates
-              ? `${checkIn} to ${checkOut} - ${nights} ${
-                  nights === 1 ? "night" : "nights"
-                } - ${rooms} ${rooms === 1 ? "room" : "rooms"} - ${totalGuests} ${
-                  totalGuests === 1 ? "guest" : "guests"
-                }`
-              : "Choose a valid check-in and check-out date to see matching rooms."}
+              ? t("staySummary", {
+                  checkIn,
+                  checkOut,
+                  nights,
+                  rooms,
+                  guests: totalGuests,
+                })
+              : t("noDatesYet")}
           </p>
         </div>
 
         <Link
           href="/"
-          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          className="inline-flex items-center justify-center rounded-md border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
         >
-          Change search
+          {t("changeSearch")}
         </Link>
       </div>
 
       {!hasValidDates ? (
         <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800">
-          Date range belum valid. Silakan kembali ke homepage dan pilih tanggal
-          check-in serta check-out.
+          {t("invalidDateRange")}
         </div>
       ) : null}
 
       {hasValidDates && availableRooms.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6">
           <h2 className="text-lg font-semibold text-slate-900">
-            No matching rooms found
+            {t("noRoomsTitle")}
           </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Coba kurangi jumlah tamu atau pilih tanggal lain untuk melihat
-            kamar yang tersedia.
-          </p>
+          <p className="mt-2 text-sm text-slate-600">{t("noRoomsBody")}</p>
         </div>
       ) : null}
 
@@ -255,28 +254,28 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold text-slate-900">
-                    Filters
+                    {t("filtersTitle")}
                   </h2>
                   <p className="text-xs text-slate-500">
-                    {activeFilterCount} active
+                    {t("filtersActive", { count: activeFilterCount })}
                   </p>
                 </div>
                 <Link
                   href={`/hotels/search?${baseSearchParams.toString()}`}
                   className="text-sm font-semibold text-primary hover:text-primary/80"
                 >
-                  Clear
+                  {t("filtersClear")}
                 </Link>
               </div>
 
               <div className="mt-5 border-t border-slate-100 pt-5">
                 <h3 className="text-sm font-semibold text-slate-900">
-                  Price per night
+                  {t("pricePerNight")}
                 </h3>
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <label className="block">
                     <span className="mb-1 block text-xs font-medium text-slate-500">
-                      Min
+                      {t("priceMin")}
                     </span>
                     <input
                       type="number"
@@ -284,12 +283,12 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                       min={0}
                       placeholder={String(minRoomPrice)}
                       defaultValue={rawMinPrice ?? ""}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
                     />
                   </label>
                   <label className="block">
                     <span className="mb-1 block text-xs font-medium text-slate-500">
-                      Max
+                      {t("priceMax")}
                     </span>
                     <input
                       type="number"
@@ -297,7 +296,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                       min={0}
                       placeholder={String(maxRoomPrice)}
                       defaultValue={rawMaxPrice ?? ""}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
                     />
                   </label>
                 </div>
@@ -305,17 +304,17 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
 
               <label className="mt-5 block border-t border-slate-100 pt-5">
                 <span className="mb-2 block text-sm font-semibold text-slate-900">
-                  Bed type
+                  {t("bedType")}
                 </span>
                 <select
                   name="bedType"
                   defaultValue={selectedBedType}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
+                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
                 >
-                  <option value="">Any bed type</option>
-                  {bedTypeOptions.map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
+                  <option value="">{t("bedTypeAny")}</option>
+                  {bedTypeOptions.map((key) => (
+                    <option key={key} value={key}>
+                      {t(`bedLabels.${key}`)}
                     </option>
                   ))}
                 </select>
@@ -323,28 +322,28 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
 
               <button
                 type="submit"
-                className="mt-5 w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
+                className="mt-5 w-full rounded-md bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
               >
-                Apply filters
+                {t("applyFilters")}
               </button>
             </form>
           </aside>
 
           <div className="space-y-4">
             <p className="text-sm font-medium text-slate-600">
-              {filteredRooms.length} of {availableRooms.length} room type
-              {availableRooms.length === 1 ? "" : "s"} match your search
-              {activeFilterCount > 0 ? " and filters" : ""}.
+              {t("matchCount", {
+                filtered: filteredRooms.length,
+                total: availableRooms.length,
+                withFilters: activeFilterCount > 0 ? "yes" : "no",
+              })}
             </p>
 
             {filteredRooms.length === 0 ? (
               <div className="rounded-2xl border border-slate-200 bg-white p-6">
                 <h2 className="text-lg font-semibold text-slate-900">
-                  No rooms match these filters
+                  {t("noMatchTitle")}
                 </h2>
-                <p className="mt-2 text-sm text-slate-600">
-                  Coba longgarkan range harga atau tipe tempat tidur yang dipilih.
-                </p>
+                <p className="mt-2 text-sm text-slate-600">{t("noMatchBody")}</p>
               </div>
             ) : null}
 
@@ -392,7 +391,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
 
                     <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-500">
                       <span className="inline-flex items-center gap-1.5">
-                        <GuestIcon /> Up to {room.maxGuests} guests
+                        <GuestIcon /> {t("upToGuests", { count: room.maxGuests })}
                       </span>
                       <span className="inline-flex items-center gap-1.5">
                         <BedIcon /> {room.beds}
@@ -412,21 +411,25 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                             )}
                           </span>{" "}
                           <span className="text-sm text-slate-500">
-                            / night
+                            {t("perNight")}
                           </span>
                         </p>
                         <p className="mt-1 text-xs text-slate-500">
-                          {formatCurrency(breakdown.total, hotel.currency)}{" "}
-                          total including fees and taxes
+                          {t("totalWithFees", {
+                            total: formatCurrency(
+                              breakdown.total,
+                              hotel.currency,
+                            ),
+                          })}
                         </p>
                       </div>
 
                       <Link
                         href={`/book/${hotel.id}?${bookingParams.toString()}`}
-                        className="relative z-10 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
+                        className="relative z-10 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
                       >
                         <PiCalendarCheckDuotone size={18} />
-                        Reserve
+                        {t("reserve")}
                       </Link>
                     </div>
                   </div>
