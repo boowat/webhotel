@@ -149,7 +149,7 @@ export function OptionalLoginPopup() {
             <form onSubmit={handleSubmit}>
               <p className="text-sm leading-6 text-slate-600">
                 {step === "create"
-                  ? "Use your email to start a Lumi Stays account and get offer alerts."
+                  ? "Use your email to start a Des Indes account and get offer alerts."
                   : "Sign in with your email to unlock member-only discounts."}
               </p>
 
@@ -171,7 +171,7 @@ export function OptionalLoginPopup() {
 
               <label className="mt-3 flex items-start gap-2 text-xs leading-5 text-slate-500">
                 <input
-                  className="mt-1 h-4 w-4 rounded-sm border-slate-300 text-primary focus:ring-primary"
+                  className="mt-1 h-4 w-4 rounded-md border-slate-300 text-primary focus:ring-primary"
                   defaultChecked
                   type="checkbox"
                 />
