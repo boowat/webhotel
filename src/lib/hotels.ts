@@ -51,6 +51,12 @@ export const hotels: Hotel[] = [
         size: "32 m²",
         image: img("photo-1618773928121-c32242e63f39"),
         imageSeed: "des-indes-deluxe",
+        gallery: [
+          { src: img("photo-1611892440504-42a792e24d32"), seed: "des-indes-deluxe-bed" },
+          { src: img("photo-1584132967334-10e028bd69f7"), seed: "des-indes-deluxe-bath" },
+          { src: img("photo-1595576508898-0ad5c879a061"), seed: "des-indes-deluxe-desk" },
+          { src: img("photo-1560448204-e02f11c3d0e2"), seed: "des-indes-deluxe-view" },
+        ],
       },
       {
         id: "premium",
@@ -63,6 +69,12 @@ export const hotels: Hotel[] = [
         size: "45 m²",
         image: img("photo-1568084680786-a84f91d1153c"),
         imageSeed: "des-indes-premium",
+        gallery: [
+          { src: img("photo-1590490360182-c33d57733427"), seed: "des-indes-premium-bed" },
+          { src: img("photo-1631049307264-da0ec9d70304"), seed: "des-indes-premium-lounge" },
+          { src: img("photo-1587985064135-0366536eab42"), seed: "des-indes-premium-bath" },
+          { src: img("photo-1522708323590-d24dbb6b0267"), seed: "des-indes-premium-view" },
+        ],
       },
       {
         id: "presidential",
@@ -75,6 +87,12 @@ export const hotels: Hotel[] = [
         size: "92 m²",
         image: img("photo-1578683010236-d716f9a3f461"),
         imageSeed: "des-indes-presidential",
+        gallery: [
+          { src: img("photo-1616486338812-3dadae4b4ace"), seed: "des-indes-presidential-living" },
+          { src: img("photo-1582719478250-c89cae4dc85b"), seed: "des-indes-presidential-bed" },
+          { src: img("photo-1571003123894-1f0594d2b5d9"), seed: "des-indes-presidential-bath" },
+          { src: img("photo-1551882547-ff40c63fe5fa"), seed: "des-indes-presidential-dining" },
+        ],
       },
     ],
     reviews: [

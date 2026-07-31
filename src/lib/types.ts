@@ -9,6 +9,7 @@ export interface RoomType {
   sizeArea?: string;
   image: string;
   imageSeed: string;
+  gallery?: { src: string; seed: string }[];
   totalUnits?: number;
 }
 

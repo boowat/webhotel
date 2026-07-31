@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PiCalendarCheckDuotone } from "react-icons/pi";
 import { SafeImage } from "@/components/SafeImage";
 import { hotels } from "@/lib/hotels";
 import { formatCurrency, nightsBetween, priceBreakdown } from "@/lib/pricing";
@@ -212,7 +213,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
 
         <Link
           href="/"
-          className="inline-flex items-center justify-center rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
         >
           Change search
         </Link>
@@ -322,7 +323,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
 
               <button
                 type="submit"
-                className="mt-5 w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
+                className="mt-5 w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
               >
                 Apply filters
               </button>
@@ -376,7 +377,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                       <div>
                         <h2 className="text-xl font-semibold text-slate-900">
                           <Link
-                            href={`/hotels/${hotel.id}#rooms`}
+                            href={`/hotels/${hotel.id}/rooms/${room.id}?${baseSearchParams.toString()}`}
                             className="outline-hidden after:absolute after:inset-0 after:content-[''] group-hover:text-primary"
                           >
                             {room.name}
@@ -422,8 +423,9 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
 
                       <Link
                         href={`/book/${hotel.id}?${bookingParams.toString()}`}
-                        className="relative z-10 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
+                        className="relative z-10 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
                       >
+                        <PiCalendarCheckDuotone size={18} />
                         Reserve
                       </Link>
                     </div>
