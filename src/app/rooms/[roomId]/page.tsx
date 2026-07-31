@@ -9,6 +9,7 @@ import {
 } from "react-icons/pi";
 import { AmenityList } from "@/components/AmenityList";
 import { RoomGallery } from "@/components/RoomGallery";
+import { SafeImage } from "@/components/SafeImage";
 import { findRoomById } from "@/lib/hotels";
 import { formatCurrency, nightsBetween, priceBreakdown } from "@/lib/pricing";
 
@@ -180,16 +181,32 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
             <h2 className="text-xl font-semibold text-slate-900">
               {t("otherRoomsTitle")}
             </h2>
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {hotel.rooms
                 .filter((other) => other.id !== room.id)
                 .map((other) => (
                   <Link
                     key={other.id}
                     href={`/rooms/${other.id}${stayQuery ? `?${stayQuery}` : ""}`}
-                    className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-primary/40 hover:bg-slate-50"
+                    className="group flex items-center gap-3 overflow-hidden rounded-md border border-slate-300 transition hover:border-primary/40 hover:bg-slate-50"
                   >
-                    {other.name} · {formatCurrency(other.pricePerNight, hotel.currency)}
+                    <div className="relative h-16 w-24 shrink-0 overflow-hidden">
+                      <SafeImage
+                        src={other.image}
+                        fallbackSeed={other.imageSeed}
+                        alt={other.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 py-2 pr-3">
+                      <p className="truncate text-sm font-semibold text-slate-900 group-hover:text-primary">
+                        {other.name}
+                      </p>
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        {formatCurrency(other.pricePerNight, hotel.currency)}{" "}
+                        {t("perNight")}
+                      </p>
+                    </div>
                   </Link>
                 ))}
             </div>
