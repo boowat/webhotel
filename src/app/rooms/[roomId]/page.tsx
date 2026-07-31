@@ -8,13 +8,13 @@ import {
 } from "react-icons/pi";
 import { AmenityList } from "@/components/AmenityList";
 import { RoomGallery } from "@/components/RoomGallery";
-import { getRoom, hotels } from "@/lib/hotels";
+import { findRoomById } from "@/lib/hotels";
 import { formatCurrency, nightsBetween, priceBreakdown } from "@/lib/pricing";
 
 type SearchParamValue = string | string[] | undefined;
 
 type RoomDetailPageProps = {
-  params: Promise<{ id: string; roomId: string }>;
+  params: Promise<{ roomId: string }>;
   searchParams: Promise<Record<string, SearchParamValue>>;
 };
 
@@ -22,17 +22,11 @@ function firstParam(value: SearchParamValue) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export function generateStaticParams() {
-  return hotels.flatMap((hotel) =>
-    hotel.rooms.map((room) => ({ id: hotel.id, roomId: room.id })),
-  );
-}
-
 export async function generateMetadata(props: {
-  params: Promise<{ id: string; roomId: string }>;
+  params: Promise<{ roomId: string }>;
 }) {
   const params = await props.params;
-  const match = getRoom(params.id, params.roomId);
+  const match = findRoomById(params.roomId);
 
   return {
     title: match
@@ -44,7 +38,7 @@ export async function generateMetadata(props: {
 export default async function RoomDetailPage(props: RoomDetailPageProps) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  const match = getRoom(params.id, params.roomId);
+  const match = findRoomById(params.roomId);
   if (!match) notFound();
 
   const { hotel, room } = match;
@@ -59,12 +53,13 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
   if (checkOut) bookingParams.set("checkOut", checkOut);
   if (guests) bookingParams.set("guests", guests);
 
-  const backToResults = new URLSearchParams();
-  if (checkIn) backToResults.set("checkIn", checkIn);
-  if (checkOut) backToResults.set("checkOut", checkOut);
-  if (guests) backToResults.set("guests", guests);
-  const resultsHref = backToResults.toString()
-    ? `/hotels/search?${backToResults.toString()}`
+  const staySearchParams = new URLSearchParams();
+  if (checkIn) staySearchParams.set("checkIn", checkIn);
+  if (checkOut) staySearchParams.set("checkOut", checkOut);
+  if (guests) staySearchParams.set("guests", guests);
+  const stayQuery = staySearchParams.toString();
+  const resultsHref = stayQuery
+    ? `/hotels/search?${stayQuery}`
     : "/hotels/search";
 
   return (
@@ -132,11 +127,7 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
                 .map((other) => (
                   <Link
                     key={other.id}
-                    href={`/hotels/${hotel.id}/rooms/${other.id}${
-                      backToResults.toString()
-                        ? `?${backToResults.toString()}`
-                        : ""
-                    }`}
+                    href={`/rooms/${other.id}${stayQuery ? `?${stayQuery}` : ""}`}
                     className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-primary/40 hover:bg-slate-50"
                   >
                     {other.name} · {formatCurrency(other.pricePerNight, hotel.currency)}

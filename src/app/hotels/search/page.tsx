@@ -377,7 +377,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                       <div>
                         <h2 className="text-xl font-semibold text-slate-900">
                           <Link
-                            href={`/hotels/${hotel.id}/rooms/${room.id}?${baseSearchParams.toString()}`}
+                            href={`/rooms/${room.id}?${baseSearchParams.toString()}`}
                             className="outline-hidden after:absolute after:inset-0 after:content-[''] group-hover:text-primary"
                           >
                             {room.name}

@@ -293,8 +293,8 @@ export function BookingFlow({
           Stays
         </Link>
         <span className="mx-2">/</span>
-        <Link href={`/hotels/${hotel.id}`} className="hover:text-slate-900">
-          {hotel.name}
+        <Link href={`/rooms/${room.id}`} className="hover:text-slate-900">
+          {room.name}
         </Link>
         <span className="mx-2">/</span>
         <span className="text-slate-900">Book</span>
@@ -679,10 +679,10 @@ function ConfirmationView({
           Back to all stays
         </Link>
         <Link
-          href={`/hotels/${hotel.id}`}
+          href={`/rooms/${room.id}`}
           className="rounded-full border border-slate-300 px-6 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
         >
-          View stay again
+          View room again
         </Link>
       </div>
     </div>
