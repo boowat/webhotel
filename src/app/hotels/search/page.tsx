@@ -347,86 +347,82 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
               </div>
             ) : null}
 
-          {filteredRooms.map(({ hotel, room }) => {
-            const breakdown = priceBreakdown(room.pricePerNight, nights);
-            const bookingParams = new URLSearchParams({
-              room: room.id,
-              checkIn,
-              checkOut,
-              guests: String(totalGuests),
-            });
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              {filteredRooms.map(({ hotel, room }) => {
+                const breakdown = priceBreakdown(room.pricePerNight, nights);
+                const bookingParams = new URLSearchParams({
+                  room: room.id,
+                  checkIn,
+                  checkOut,
+                  guests: String(totalGuests),
+                });
 
-            return (
-              <article
-                key={`${hotel.id}-${room.id}`}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-[240px_1fr]">
-                  <div className="relative aspect-16/10 overflow-hidden sm:aspect-auto">
-                    <SafeImage
-                      src={room.image}
-                      fallbackSeed={room.imageSeed}
-                      alt={room.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-4 p-5">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                      <div>
-                        <h2 className="text-xl font-semibold text-slate-900">
-                          {room.name}
-                        </h2>
-                      </div>
+                return (
+                  <article
+                    key={`${hotel.id}-${room.id}`}
+                    className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card"
+                  >
+                    <div className="relative aspect-16/10 overflow-hidden">
+                      <SafeImage
+                        src={room.image}
+                        fallbackSeed={room.imageSeed}
+                        alt={room.name}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
 
-                    <p className="text-sm leading-relaxed text-slate-600">
-                      {room.description}
-                    </p>
+                    <div className="flex flex-1 flex-col gap-4 p-5">
+                      <h2 className="text-xl font-semibold text-slate-900">
+                        {room.name}
+                      </h2>
 
-                    <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-500">
-                      <span className="inline-flex items-center gap-1.5">
-                        <GuestIcon /> Up to {room.maxGuests} guests
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <BedIcon /> {room.beds}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <SizeIcon /> {room.size}
-                      </span>
-                    </div>
+                      <p className="text-sm leading-relaxed text-slate-600">
+                        {room.description}
+                      </p>
 
-                    <div className="flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row sm:items-end sm:justify-between">
-                      <div>
-                        <p className="text-slate-900">
-                          <span className="text-lg font-semibold">
-                            {formatCurrency(
-                              room.pricePerNight,
-                              hotel.currency,
-                            )}
-                          </span>{" "}
-                          <span className="text-sm text-slate-500">
-                            / night
-                          </span>
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          {formatCurrency(breakdown.total, hotel.currency)}{" "}
-                          total including fees and taxes
-                        </p>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-500">
+                        <span className="inline-flex items-center gap-1.5">
+                          <GuestIcon /> Up to {room.maxGuests} guests
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <BedIcon /> {room.beds}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <SizeIcon /> {room.size}
+                        </span>
                       </div>
 
-                      <Link
-                        href={`/book/${hotel.id}?${bookingParams.toString()}`}
-                        className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
-                      >
-                        Reserve
-                      </Link>
+                      <div className="mt-auto flex flex-col gap-3 border-t border-slate-100 pt-4">
+                        <div>
+                          <p className="text-slate-900">
+                            <span className="text-lg font-semibold">
+                              {formatCurrency(
+                                room.pricePerNight,
+                                hotel.currency,
+                              )}
+                            </span>{" "}
+                            <span className="text-sm text-slate-500">
+                              / night
+                            </span>
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {formatCurrency(breakdown.total, hotel.currency)}{" "}
+                            total including fees and taxes
+                          </p>
+                        </div>
+
+                        <Link
+                          href={`/book/${hotel.id}?${bookingParams.toString()}`}
+                          className="inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
+                        >
+                          Reserve
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
+                  </article>
+                );
+              })}
+            </div>
           </div>
         </div>
       ) : null}
