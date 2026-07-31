@@ -83,22 +83,22 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2.4fr_1fr]">
+        <div>
           <RoomGallery room={room} />
         </div>
 
-        <aside className="lg:col-span-1">
-          <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+        <aside className="self-start">
+          <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
             <p className="text-slate-900">
-              <span className="text-2xl font-semibold">
+              <span className="text-xl font-semibold">
                 {formatCurrency(room.pricePerNight, hotel.currency)}
               </span>{" "}
               <span className="text-sm text-slate-500">/ night</span>
             </p>
 
             {breakdown ? (
-              <dl className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-sm text-slate-600">
+              <dl className="mt-3 space-y-1.5 border-t border-slate-100 pt-3 text-xs text-slate-600">
                 <div className="flex justify-between">
                   <dt>
                     {formatCurrency(room.pricePerNight, hotel.currency)} ×{" "}
@@ -120,17 +120,17 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
                 </div>
               </dl>
             ) : (
-              <p className="mt-4 border-t border-slate-100 pt-4 text-sm text-slate-500">
+              <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
                 Pilih tanggal check-in dan check-out untuk melihat total harga.
               </p>
             )}
 
-            <div className="mt-auto pt-5">
+            <div className="mt-4">
               <Link
                 href={`/book/${hotel.id}?${bookingParams.toString()}`}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-primary/90"
               >
-                <PiCalendarCheckDuotone size={18} />
+                <PiCalendarCheckDuotone size={16} />
                 Reserve
               </Link>
             </div>
