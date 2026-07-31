@@ -83,9 +83,62 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
         </p>
       </div>
 
-      <RoomGallery room={room} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <RoomGallery room={room} />
+        </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-3">
+        <aside className="lg:col-span-1">
+          <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+            <p className="text-slate-900">
+              <span className="text-2xl font-semibold">
+                {formatCurrency(room.pricePerNight, hotel.currency)}
+              </span>{" "}
+              <span className="text-sm text-slate-500">/ night</span>
+            </p>
+
+            {breakdown ? (
+              <dl className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-sm text-slate-600">
+                <div className="flex justify-between">
+                  <dt>
+                    {formatCurrency(room.pricePerNight, hotel.currency)} ×{" "}
+                    {nights} {nights === 1 ? "night" : "nights"}
+                  </dt>
+                  <dd>{formatCurrency(breakdown.roomTotal, hotel.currency)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt>Service fee</dt>
+                  <dd>{formatCurrency(breakdown.serviceFee, hotel.currency)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt>Taxes</dt>
+                  <dd>{formatCurrency(breakdown.taxes, hotel.currency)}</dd>
+                </div>
+                <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold text-slate-900">
+                  <dt>Total</dt>
+                  <dd>{formatCurrency(breakdown.total, hotel.currency)}</dd>
+                </div>
+              </dl>
+            ) : (
+              <p className="mt-4 border-t border-slate-100 pt-4 text-sm text-slate-500">
+                Pilih tanggal check-in dan check-out untuk melihat total harga.
+              </p>
+            )}
+
+            <div className="mt-auto pt-5">
+              <Link
+                href={`/book/${hotel.id}?${bookingParams.toString()}`}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
+              >
+                <PiCalendarCheckDuotone size={18} />
+                Reserve
+              </Link>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
           <section>
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600">
@@ -135,53 +188,6 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
                 ))}
             </div>
           </section>
-        </div>
-
-        <div className="lg:col-span-1">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card lg:sticky lg:top-24">
-            <p className="text-slate-900">
-              <span className="text-2xl font-semibold">
-                {formatCurrency(room.pricePerNight, hotel.currency)}
-              </span>{" "}
-              <span className="text-sm text-slate-500">/ night</span>
-            </p>
-
-            {breakdown ? (
-              <dl className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-sm text-slate-600">
-                <div className="flex justify-between">
-                  <dt>
-                    {formatCurrency(room.pricePerNight, hotel.currency)} ×{" "}
-                    {nights} {nights === 1 ? "night" : "nights"}
-                  </dt>
-                  <dd>{formatCurrency(breakdown.roomTotal, hotel.currency)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt>Service fee</dt>
-                  <dd>{formatCurrency(breakdown.serviceFee, hotel.currency)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt>Taxes</dt>
-                  <dd>{formatCurrency(breakdown.taxes, hotel.currency)}</dd>
-                </div>
-                <div className="flex justify-between border-t border-slate-100 pt-2 font-semibold text-slate-900">
-                  <dt>Total</dt>
-                  <dd>{formatCurrency(breakdown.total, hotel.currency)}</dd>
-                </div>
-              </dl>
-            ) : (
-              <p className="mt-4 border-t border-slate-100 pt-4 text-sm text-slate-500">
-                Pilih tanggal check-in dan check-out untuk melihat total harga.
-              </p>
-            )}
-
-            <Link
-              href={`/book/${hotel.id}?${bookingParams.toString()}`}
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
-            >
-              <PiCalendarCheckDuotone size={18} />
-              Reserve
-            </Link>
-          </div>
         </div>
       </div>
     </div>
