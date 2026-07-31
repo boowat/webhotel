@@ -6,7 +6,7 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
   const params = await props.params;
   const hotel = getHotel(params.id);
   return {
-    title: hotel ? `Book ${hotel.name} — Lumi Stays` : "Book — Lumi Stays",
+    title: hotel ? `Book ${hotel.name} — Des Indes` : "Book — Des Indes",
   };
 }
 

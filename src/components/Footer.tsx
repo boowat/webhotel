@@ -21,11 +21,10 @@ export function Footer() {
                   <path d="M5 21V7l7-4 7 4v14" />
                 </svg>
               </span>
-              <span className="font-semibold text-slate-900">Lumi Stays</span>
+              <span className="font-semibold text-slate-900">Des Indes</span>
             </div>
             <p className="mt-3 max-w-xs text-sm text-slate-500">
-              A curated collection of hotels worth traveling for. Booked in a few
-              taps.
+              A timeless stay, reserved in a few taps.
             </p>
           </div>
 
@@ -40,7 +39,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 flex flex-col items-start justify-between gap-2 border-t border-slate-100 pt-6 text-xs text-slate-400 sm:flex-row sm:items-center">
-          <p>© 2026 Lumi Stays. Prototype demo — no real bookings are made.</p>
+          <p>© 2026 Des Indes. Prototype demo — no real bookings are made.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-slate-600">Privacy</a>
             <a href="#" className="hover:text-slate-600">Terms</a>
