@@ -30,9 +30,82 @@ enum LockStatus {
 
 // ─── Models ─────────────────────────────────────────────────
 
+/// Website hotel content shown to guests.
+model Hotel {
+  id            String   @id
+  name          String
+  tagline       String
+  city          String
+  country       String
+  address       String
+  rating        Decimal  @db.Decimal(3, 1)
+  reviewCount   Int      @map("review_count")
+  pricePerNight Decimal  @map("price_per_night") @db.Decimal(12, 2)
+  currency      String   @default("IDR")
+  heroImage     String   @map("hero_image")
+  heroSeed      String   @map("hero_seed")
+  gallery       Json
+  description   String
+  highlights    String[]
+  amenities     String[]
+  sortOrder     Int      @default(0) @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  rooms   Room[]
+  reviews Review[]
+
+  @@index([sortOrder])
+  @@map("hotels")
+}
+
+/// Room type inventory source, e.g. standard, gold, presidential.
+model Room {
+  id            String   @id
+  hotelId       String   @map("hotel_id")
+  name          String
+  description   String
+  pricePerNight Decimal  @map("price_per_night") @db.Decimal(12, 2)
+  maxGuests     Int      @map("max_guests")
+  beds          String
+  size          String
+  sizeArea      String?  @map("size_area")
+  image         String
+  imageSeed     String   @map("image_seed")
+  totalUnits    Int      @default(10) @map("total_units")
+  sortOrder     Int      @default(0) @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@index([hotelId])
+  @@index([sortOrder])
+  @@map("rooms")
+}
+
+/// Guest-facing hotel review content.
+model Review {
+  id        String   @id
+  hotelId   String   @map("hotel_id")
+  author    String
+  location  String
+  rating    Int
+  date      String
+  text      String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  hotel Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  @@index([hotelId])
+  @@index([sortOrder])
+  @@map("reviews")
+}
+
 /// Per-date inventory tracking for each room type.
-/// roomId references the hardcoded room ID from hotels.ts
-/// (e.g. "ocean-villa", "skyline-king").
+/// roomId references a Room.id.
 model RoomInventory {
   id          String   @id @default(uuid())
   roomId      String   @map("room_id")
@@ -84,7 +157,7 @@ model Guest {
 }
 
 /// Core booking record.
-/// hotelId and roomId reference hardcoded data in hotels.ts.
+/// hotelId and roomId reference the seeded Hotel and Room ids.
 model Booking {
   id              String        @id @default(uuid())
   bookingRef      String        @unique @map("booking_ref")

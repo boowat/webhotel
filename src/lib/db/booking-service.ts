@@ -13,7 +13,6 @@ import {
 import { getRoom } from "../hotels";
 import { nightsBetween, priceBreakdown } from "../pricing";
 import type { BookingRequest } from "../schemas/booking";
-import crypto from "crypto";
 
 // ------------------------------------------------------------------
 // Types
@@ -41,11 +40,15 @@ function makeBookingRef(): string {
   return `LUMI-${out}`;
 }
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 export async function createBooking(
   hotelId: string,
   data: BookingRequest
 ): Promise<BookingResponse> {
-  const { hotel, room } = getRoom(hotelId, data.room_id) || {};
+  const { hotel, room } = (await getRoom(hotelId, data.room_id)) || {};
   if (!hotel || !room) {
     throw new Error("Room not found");
   }
@@ -149,8 +152,8 @@ export async function createBooking(
       });
       
       success = true;
-    } catch (error: any) {
-      if (error.message === "ROOM_NOT_AVAILABLE") {
+    } catch (error) {
+      if (getErrorMessage(error) === "ROOM_NOT_AVAILABLE") {
         throw error; // Don't retry if it's genuinely full
       }
       if (attempt >= MAX_RETRIES) {
@@ -190,7 +193,7 @@ export async function createBooking(
       snapToken: snapData.token,
       snapRedirectUrl: snapData.redirect_url,
     };
-  } catch (error) {
+  } catch {
     // If midtrans fails, we should ideally expire the booking
     // so it doesn't hold the lock pointlessly.
     await expireBooking(bookingId);

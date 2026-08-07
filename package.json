@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "tsx --test tests/**/*.test.ts",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",

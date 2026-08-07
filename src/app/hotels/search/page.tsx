@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { SafeImage } from "@/components/SafeImage";
 import { StarRating } from "@/components/StarRating";
-import { hotels } from "@/lib/hotels";
+import { getHotels } from "@/lib/hotels";
 import { formatCurrency, nightsBetween, priceBreakdown } from "@/lib/pricing";
+import type { Hotel } from "@/lib/types";
 
 type SearchParamValue = string | string[] | undefined;
 
@@ -47,7 +48,7 @@ function toOptionalPrice(value: SearchParamValue) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
 }
 
-function getBedTypeOptions() {
+function getBedTypeOptions(hotels: Hotel[]) {
   const roomBeds = hotels.flatMap((hotel) =>
     hotel.rooms.map((room) => room.beds.toLowerCase()),
   );
@@ -138,6 +139,7 @@ export const metadata = {
 
 export default async function RoomSearchPage(props: RoomSearchPageProps) {
   const searchParams = await props.searchParams;
+  const hotels = await getHotels();
   const checkIn = firstParam(searchParams.checkIn) ?? "";
   const checkOut = firstParam(searchParams.checkOut) ?? "";
   const rooms = toPositiveInt(searchParams.rooms, 1);
@@ -150,8 +152,12 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
   const allRooms = hotels.flatMap((hotel) =>
     hotel.rooms.map((room) => ({ hotel, room })),
   );
-  const minRoomPrice = Math.min(...allRooms.map(({ room }) => room.pricePerNight));
-  const maxRoomPrice = Math.max(...allRooms.map(({ room }) => room.pricePerNight));
+  const minRoomPrice = allRooms.length
+    ? Math.min(...allRooms.map(({ room }) => room.pricePerNight))
+    : 0;
+  const maxRoomPrice = allRooms.length
+    ? Math.max(...allRooms.map(({ room }) => room.pricePerNight))
+    : 0;
   const rawMinPrice = toOptionalPrice(searchParams.minPrice);
   const rawMaxPrice = toOptionalPrice(searchParams.maxPrice);
   const minPrice =
@@ -162,7 +168,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
     rawMinPrice !== undefined && rawMaxPrice !== undefined
       ? Math.max(rawMinPrice, rawMaxPrice)
       : rawMaxPrice;
-  const bedTypeOptions = getBedTypeOptions();
+  const bedTypeOptions = getBedTypeOptions(hotels);
   const bedTypeParam = firstParam(searchParams.bedType)?.toLowerCase() ?? "";
   const selectedBedType = bedTypeOptions.some(([value]) => value === bedTypeParam)
     ? bedTypeParam

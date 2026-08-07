@@ -1,19 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getHotel, hotels } from "@/lib/hotels";
+import { getHotel, getHotels } from "@/lib/hotels";
 import { Gallery } from "@/components/Gallery";
 import { AmenityList } from "@/components/AmenityList";
 import { RoomCard } from "@/components/RoomCard";
 import { BookingWidget } from "@/components/BookingWidget";
 import { StarRating } from "@/components/StarRating";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const hotels = await getHotels();
   return hotels.map((h) => ({ id: h.id }));
 }
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const hotel = getHotel(params.id);
+  const hotel = await getHotel(params.id);
   return {
     title: hotel ? `${hotel.name} — Lumi Stays` : "Stay not found — Lumi Stays",
   };
@@ -32,7 +33,7 @@ export default async function HotelDetailPage(
   }
 ) {
   const params = await props.params;
-  const hotel = getHotel(params.id);
+  const hotel = await getHotel(params.id);
   if (!hotel) notFound();
 
   return (
