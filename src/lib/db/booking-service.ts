@@ -5,6 +5,7 @@ import {
   lockInventory,
   confirmInventory,
   releaseInventory,
+  releaseBookedInventory,
 } from "./inventory";
 import {
   createSnapTransaction,
@@ -332,4 +333,108 @@ export async function expireStaleBookings(): Promise<number> {
     count++;
   }
   return count;
+}
+
+// ------------------------------------------------------------------
+// Cancel Booking (Guest-initiated cancellation)
+// ------------------------------------------------------------------
+
+const CANCELLATION_HOURS = 48;
+
+export interface CancelBookingResult {
+  bookingId: string;
+  bookingRef: string;
+  status: "CANCELLED";
+  refundNote: string;
+}
+
+export async function cancelBooking(
+  bookingIdOrRef: string
+): Promise<CancelBookingResult> {
+  let result: CancelBookingResult | null = null;
+
+  await prisma.$transaction(async (tx) => {
+    const booking = await tx.booking.findFirst({
+      where: {
+        OR: [
+          { id: bookingIdOrRef },
+          { bookingRef: bookingIdOrRef },
+        ],
+      },
+      include: { payment: true },
+    });
+
+    if (!booking) {
+      throw new Error("BOOKING_NOT_FOUND");
+    }
+
+    // Idempotency: already cancelled
+    if (booking.status === "CANCELLED") {
+      throw new Error("ALREADY_CANCELLED");
+    }
+
+    // Can only cancel confirmed bookings
+    if (booking.status !== "CONFIRMED") {
+      throw new Error("NOT_CONFIRMED");
+    }
+
+    // Check 48h cancellation policy
+    const now = new Date();
+    const checkInDate = new Date(booking.checkIn);
+    const hoursUntilCheckIn =
+      (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    if (hoursUntilCheckIn < CANCELLATION_HOURS) {
+      throw new Error("CANCELLATION_DEADLINE_PASSED");
+    }
+
+    // Update booking status
+    await tx.booking.update({
+      where: { id: booking.id },
+      data: { status: "CANCELLED" },
+    });
+
+    // Mark payment for refund
+    if (booking.payment) {
+      await tx.payment.update({
+        where: { bookingId: booking.id },
+        data: { status: "REFUNDED" },
+      });
+    }
+
+    // Release booked inventory back to available pool
+    await releaseBookedInventory(booking.id, tx);
+
+    result = {
+      bookingId: booking.id,
+      bookingRef: booking.bookingRef,
+      status: "CANCELLED",
+      refundNote:
+        "Booking cancelled. Refund will be processed within 3-5 business days.",
+    };
+  });
+
+  if (!result) {
+    throw new Error("Cancellation failed");
+  }
+
+  return result;
+}
+
+// ------------------------------------------------------------------
+// Get Booking Detail
+// ------------------------------------------------------------------
+
+export async function getBookingDetail(bookingIdOrRef: string) {
+  const booking = await prisma.booking.findFirst({
+    where: {
+      OR: [
+        { id: bookingIdOrRef },
+        { bookingRef: bookingIdOrRef },
+      ],
+    },
+    include: { guest: true, payment: true },
+  });
+
+  return booking;
 }

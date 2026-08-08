@@ -173,12 +173,28 @@ export async function POST(request: NextRequest) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  GET /api/bookings (optional — list bookings for debug / admin)     */
+/*  GET /api/bookings (admin only — requires ADMIN_API_KEY)            */
 /* ------------------------------------------------------------------ */
 
 import { prisma } from "@/lib/db/prisma";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Auth check: require ADMIN_API_KEY
+  const adminKey = process.env.ADMIN_API_KEY;
+  if (adminKey) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${adminKey}`) {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "Unauthorized. Provide a valid ADMIN_API_KEY in the Authorization header.",
+          code: "UNAUTHORIZED",
+        },
+        { status: 401 }
+      );
+    }
+  }
+
   const bookings = await prisma.booking.findMany({
     include: { guest: true, payment: true },
     orderBy: { createdAt: "desc" },
@@ -218,3 +234,4 @@ export async function GET() {
     },
   });
 }
+

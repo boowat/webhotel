@@ -1,33 +1,47 @@
-# dependencies
+# ─── Dependencies ────────────────────────────────────────
 /node_modules
 /.pnp
 .pnp.js
 
-# next.js
+# ─── Next.js ─────────────────────────────────────────────
 /.next/
 /out/
-
-# production
 /build
+next-env.d.ts
 
-# misc
+# ─── Environment ─────────────────────────────────────────
+.env
+.env*.local
+
+# ─── Prisma ──────────────────────────────────────────────
+/app/generated/prisma
+/src/app/generated/prisma
+
+# ─── Editor / IDE ────────────────────────────────────────
+.vscode/
+.zed/
+*.swp
+*.swo
+
+# ─── AI / Agent Tools ───────────────────────────────────
+.agents/
+.claude/
+.gstack/
+
+# ─── OS ──────────────────────────────────────────────────
 .DS_Store
-*.pem
+Thumbs.db
 
-# debug
+# ─── Build / Cache ───────────────────────────────────────
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+.swc-tmp/
+
+# ─── Debug Logs ──────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# local env files
-.env*.local
-.env
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-.gstack/
-
-/app/generated/prisma
-
-/src/app/generated/prisma
+# ─── Security ────────────────────────────────────────────
+*.pem
