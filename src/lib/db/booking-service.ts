@@ -5,6 +5,7 @@ import {
   lockInventory,
   confirmInventory,
   releaseInventory,
+  releaseBookedInventory,
 } from "./inventory";
 import {
   createSnapTransaction,
@@ -13,7 +14,6 @@ import {
 import { getRoom } from "../hotels";
 import { nightsBetween, priceBreakdown } from "../pricing";
 import type { BookingRequest } from "../schemas/booking";
-import crypto from "crypto";
 
 // ------------------------------------------------------------------
 // Types
@@ -41,11 +41,15 @@ function makeBookingRef(): string {
   return `LUMI-${out}`;
 }
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 export async function createBooking(
   hotelId: string,
   data: BookingRequest
 ): Promise<BookingResponse> {
-  const { hotel, room } = getRoom(hotelId, data.room_id) || {};
+  const { hotel, room } = (await getRoom(hotelId, data.room_id)) || {};
   if (!hotel || !room) {
     throw new Error("Room not found");
   }
@@ -149,8 +153,8 @@ export async function createBooking(
       });
       
       success = true;
-    } catch (error: any) {
-      if (error.message === "ROOM_NOT_AVAILABLE") {
+    } catch (error) {
+      if (getErrorMessage(error) === "ROOM_NOT_AVAILABLE") {
         throw error; // Don't retry if it's genuinely full
       }
       if (attempt >= MAX_RETRIES) {
@@ -190,7 +194,7 @@ export async function createBooking(
       snapToken: snapData.token,
       snapRedirectUrl: snapData.redirect_url,
     };
-  } catch (error) {
+  } catch {
     // If midtrans fails, we should ideally expire the booking
     // so it doesn't hold the lock pointlessly.
     await expireBooking(bookingId);
@@ -329,4 +333,108 @@ export async function expireStaleBookings(): Promise<number> {
     count++;
   }
   return count;
+}
+
+// ------------------------------------------------------------------
+// Cancel Booking (Guest-initiated cancellation)
+// ------------------------------------------------------------------
+
+const CANCELLATION_HOURS = 48;
+
+export interface CancelBookingResult {
+  bookingId: string;
+  bookingRef: string;
+  status: "CANCELLED";
+  refundNote: string;
+}
+
+export async function cancelBooking(
+  bookingIdOrRef: string
+): Promise<CancelBookingResult> {
+  let result: CancelBookingResult | null = null;
+
+  await prisma.$transaction(async (tx) => {
+    const booking = await tx.booking.findFirst({
+      where: {
+        OR: [
+          { id: bookingIdOrRef },
+          { bookingRef: bookingIdOrRef },
+        ],
+      },
+      include: { payment: true },
+    });
+
+    if (!booking) {
+      throw new Error("BOOKING_NOT_FOUND");
+    }
+
+    // Idempotency: already cancelled
+    if (booking.status === "CANCELLED") {
+      throw new Error("ALREADY_CANCELLED");
+    }
+
+    // Can only cancel confirmed bookings
+    if (booking.status !== "CONFIRMED") {
+      throw new Error("NOT_CONFIRMED");
+    }
+
+    // Check 48h cancellation policy
+    const now = new Date();
+    const checkInDate = new Date(booking.checkIn);
+    const hoursUntilCheckIn =
+      (checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    if (hoursUntilCheckIn < CANCELLATION_HOURS) {
+      throw new Error("CANCELLATION_DEADLINE_PASSED");
+    }
+
+    // Update booking status
+    await tx.booking.update({
+      where: { id: booking.id },
+      data: { status: "CANCELLED" },
+    });
+
+    // Mark payment for refund
+    if (booking.payment) {
+      await tx.payment.update({
+        where: { bookingId: booking.id },
+        data: { status: "REFUNDED" },
+      });
+    }
+
+    // Release booked inventory back to available pool
+    await releaseBookedInventory(booking.id, tx);
+
+    result = {
+      bookingId: booking.id,
+      bookingRef: booking.bookingRef,
+      status: "CANCELLED",
+      refundNote:
+        "Booking cancelled. Refund will be processed within 3-5 business days.",
+    };
+  });
+
+  if (!result) {
+    throw new Error("Cancellation failed");
+  }
+
+  return result;
+}
+
+// ------------------------------------------------------------------
+// Get Booking Detail
+// ------------------------------------------------------------------
+
+export async function getBookingDetail(bookingIdOrRef: string) {
+  const booking = await prisma.booking.findFirst({
+    where: {
+      OR: [
+        { id: bookingIdOrRef },
+        { bookingRef: bookingIdOrRef },
+      ],
+    },
+    include: { guest: true, payment: true },
+  });
+
+  return booking;
 }

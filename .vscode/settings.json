@@ -1,3 +1,12 @@
 {
-  "snyk.advanced.autoSelectOrganization": true
+  "security.workspace.trust.untrustedFiles": "open",
+  "workbench.editorAssociations": {
+    "*.tsbuildinfo": "default"
+  },
+  "files.exclude": {
+    "**/*.d.ts": true,
+    "**/tsconfig.tsbuildinfo": true
+  },
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsserver.maxTsServerStartupRetries": 2
 }

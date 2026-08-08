@@ -1,145 +1,144 @@
-import { Hotel } from "./types";
+import type { Prisma } from "@prisma/client";
 
-const img = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1400&q=80`;
+import type { Hotel, RoomType } from "./types";
 
-export const hotels: Hotel[] = [
-  {
-    id: "des-indes",
-    name: "Des Indes",
-    tagline: "Heritage hospitality in the heart of Jakarta",
-    city: "Jakarta",
-    country: "Indonesia",
-    address: "Jl. Kebon Sirih No. 17, Jakarta Pusat 10340",
-    rating: 4.8,
-    reviewCount: 428,
-    pricePerNight: 1250000,
-    currency: "IDR",
-    heroImage: img("photo-1564501049412-61c2a3083791"),
-    heroSeed: "des-indes-hero",
-    gallery: [
-      { src: img("photo-1566073771259-6a8506099945"), seed: "des-indes-lobby" },
-      { src: img("photo-1542314831-068cd1dbfeeb"), seed: "des-indes-room" },
-      { src: img("photo-1551882547-ff40c63fe5fa"), seed: "des-indes-dining" },
-      { src: img("photo-1520250497591-112f2f40a3f4"), seed: "des-indes-pool" },
-    ],
-    description:
-      "Des Indes brings quiet heritage character to central Jakarta. Warm Indonesian hospitality, refined rooms, and thoughtful details make every stay feel personal.",
-    highlights: [
-      "Central Jakarta location",
-      "Daily breakfast available",
-      "All-day dining restaurant",
-      "24-hour front desk",
-    ],
-    amenities: [
-      "Free Wi-Fi",
-      "Restaurant",
-      "Fitness center",
-      "Swimming pool",
-      "Airport transfer",
-      "Air conditioning",
-    ],
-    rooms: [
-      {
-        id: "deluxe",
-        name: "Deluxe",
-        description:
-          "Comfortable king room with warm timber finishes, a work desk, and city-facing windows.",
-        pricePerNight: 1250000,
-        maxGuests: 2,
-        beds: "1 king bed",
-        size: "32 m²",
-        image: img("photo-1618773928121-c32242e63f39"),
-        imageSeed: "des-indes-deluxe",
-        gallery: [
-          { src: img("photo-1611892440504-42a792e24d32"), seed: "des-indes-deluxe-bed" },
-          { src: img("photo-1584132967334-10e028bd69f7"), seed: "des-indes-deluxe-bath" },
-          { src: img("photo-1595576508898-0ad5c879a061"), seed: "des-indes-deluxe-desk" },
-          { src: img("photo-1560448204-e02f11c3d0e2"), seed: "des-indes-deluxe-view" },
-        ],
-      },
-      {
-        id: "premium",
-        name: "Premium",
-        description:
-          "Spacious room with a lounge corner, king bed, and additional space for a small family.",
-        pricePerNight: 1850000,
-        maxGuests: 3,
-        beds: "1 king bed + 1 sofa bed",
-        size: "45 m²",
-        image: img("photo-1568084680786-a84f91d1153c"),
-        imageSeed: "des-indes-premium",
-        gallery: [
-          { src: img("photo-1590490360182-c33d57733427"), seed: "des-indes-premium-bed" },
-          { src: img("photo-1631049307264-da0ec9d70304"), seed: "des-indes-premium-lounge" },
-          { src: img("photo-1587985064135-0366536eab42"), seed: "des-indes-premium-bath" },
-          { src: img("photo-1522708323590-d24dbb6b0267"), seed: "des-indes-premium-view" },
-        ],
-      },
-      {
-        id: "presidential",
-        name: "Presidential",
-        description:
-          "Signature suite with separate living and dining areas, ideal for an extended family stay.",
-        pricePerNight: 3500000,
-        maxGuests: 4,
-        beds: "1 king bed + 2 twin beds",
-        size: "92 m²",
-        image: img("photo-1578683010236-d716f9a3f461"),
-        imageSeed: "des-indes-presidential",
-        gallery: [
-          { src: img("photo-1616486338812-3dadae4b4ace"), seed: "des-indes-presidential-living" },
-          { src: img("photo-1582719478250-c89cae4dc85b"), seed: "des-indes-presidential-bed" },
-          { src: img("photo-1571003123894-1f0594d2b5d9"), seed: "des-indes-presidential-bath" },
-          { src: img("photo-1551882547-ff40c63fe5fa"), seed: "des-indes-presidential-dining" },
-        ],
-      },
-    ],
-    reviews: [
-      {
-        author: "Nadia A.",
-        location: "Bandung, Indonesia",
-        rating: 5,
-        date: "Jul 2026",
-        text: "Warm service and a very comfortable room. The central location made our Jakarta weekend easy.",
-      },
-      {
-        author: "Daniel K.",
-        location: "Singapore",
-        rating: 5,
-        date: "Jun 2026",
-        text: "Quiet room, attentive staff, and an excellent breakfast. I would stay here again for business.",
-      },
-      {
-        author: "Rina P.",
-        location: "Surabaya, Indonesia",
-        rating: 4,
-        date: "May 2026",
-        text: "The Premium room was spacious for our family and the team helped us check in quickly.",
-      },
-    ],
+const hotelInclude = {
+  rooms: {
+    orderBy: {
+      sortOrder: "asc",
+    },
   },
-];
+  reviews: {
+    orderBy: {
+      sortOrder: "asc",
+    },
+  },
+} satisfies Prisma.HotelInclude;
 
-export function getHotel(id: string): Hotel | undefined {
-  return hotels.find((hotel) => hotel.id === id);
+type HotelRecord = Prisma.HotelGetPayload<{ include: typeof hotelInclude }>;
+type RoomRecord = HotelRecord["rooms"][number];
+
+type DecimalLike =
+  | number
+  | string
+  | {
+      toNumber: () => number;
+    };
+
+function toNumber(value: DecimalLike): number {
+  if (typeof value === "number") return value;
+  if (typeof value === "string") return Number(value);
+  return value.toNumber();
 }
 
-export function getRoom(hotelId: string, roomId: string) {
-  const hotel = getHotel(hotelId);
+function isGalleryImage(value: unknown): value is { src: string; seed: string } {
+  if (!value || typeof value !== "object") return false;
+
+  const maybeImage = value as Record<string, unknown>;
+  return (
+    typeof maybeImage.src === "string" && typeof maybeImage.seed === "string"
+  );
+}
+
+function toGallery(value: unknown): { src: string; seed: string }[] {
+  return Array.isArray(value) ? value.filter(isGalleryImage) : [];
+}
+
+function mapRoomRecord(room: RoomRecord): RoomType {
+  return {
+    id: room.id,
+    name: room.name,
+    description: room.description,
+    pricePerNight: toNumber(room.pricePerNight),
+    maxGuests: room.maxGuests,
+    beds: room.beds,
+    size: room.size,
+    sizeArea: room.sizeArea ?? undefined,
+    image: room.image,
+    imageSeed: room.imageSeed,
+    totalUnits: room.totalUnits,
+  };
+}
+
+export function mapHotelRecord(hotel: HotelRecord): Hotel {
+  return {
+    id: hotel.id,
+    name: hotel.name,
+    tagline: hotel.tagline,
+    city: hotel.city,
+    country: hotel.country,
+    address: hotel.address,
+    rating: toNumber(hotel.rating),
+    reviewCount: hotel.reviewCount,
+    pricePerNight: toNumber(hotel.pricePerNight),
+    currency: hotel.currency,
+    heroImage: hotel.heroImage,
+    heroSeed: hotel.heroSeed,
+    gallery: toGallery(hotel.gallery),
+    description: hotel.description,
+    highlights: hotel.highlights,
+    amenities: hotel.amenities,
+    rooms: hotel.rooms.map(mapRoomRecord),
+    reviews: hotel.reviews.map((review) => ({
+      author: review.author,
+      location: review.location,
+      rating: review.rating,
+      date: review.date,
+      text: review.text,
+    })),
+  };
+}
+
+async function getPrisma() {
+  const { prisma } = await import("./db/prisma");
+  return prisma;
+}
+
+export async function getHotels(): Promise<Hotel[]> {
+  const prisma = await getPrisma();
+  const hotels = await prisma.hotel.findMany({
+    include: hotelInclude,
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+  });
+
+  return hotels.map(mapHotelRecord);
+}
+
+export async function getHotel(id: string): Promise<Hotel | undefined> {
+  const prisma = await getPrisma();
+  const hotel = await prisma.hotel.findUnique({
+    where: { id },
+    include: hotelInclude,
+  });
+
+  return hotel ? mapHotelRecord(hotel) : undefined;
+}
+
+export async function getRoom(hotelId: string, roomId: string) {
+  const hotel = await getHotel(hotelId);
   if (!hotel) return undefined;
 
-  const room = hotel.rooms.find((candidate) => candidate.id === roomId);
+  const room = hotel.rooms.find((item) => item.id === roomId);
   if (!room) return undefined;
 
   return { hotel, room };
 }
 
-export function findRoomById(roomId: string) {
-  for (const hotel of hotels) {
-    const room = hotel.rooms.find((candidate) => candidate.id === roomId);
-    if (room) return { hotel, room };
-  }
+export async function findRoomById(roomId: string) {
+  const prisma = await getPrisma();
+  const room = await prisma.room.findUnique({
+    where: { id: roomId },
+    include: {
+      hotel: {
+        include: hotelInclude,
+      },
+    },
+  });
 
-  return undefined;
+  if (!room) return undefined;
+
+  const hotel = mapHotelRecord(room.hotel);
+  const mappedRoom = hotel.rooms.find((item) => item.id === room.id);
+
+  return mappedRoom ? { hotel, room: mappedRoom } : undefined;
 }

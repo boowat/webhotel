@@ -1,6 +1,6 @@
 import midtransClient from "midtrans-client";
-import { Booking, Guest, Payment } from "@prisma/client";
-import { getHotel, getRoom } from "../hotels";
+import type { Booking, Guest, Payment } from "@prisma/client";
+import { getRoom } from "../hotels";
 
 // ------------------------------------------------------------------
 // Midtrans Client Setup
@@ -44,6 +44,40 @@ export interface SnapResponse {
   redirect_url: string;
 }
 
+export type MidtransStatusResponse = {
+  order_id: string;
+  transaction_id?: string;
+  transaction_status?: string;
+  fraud_status?: string;
+  payment_type?: string;
+};
+
+type MidtransCoreClient = {
+  transaction: {
+    notification: (
+      notificationJson: unknown
+    ) => Promise<MidtransStatusResponse>;
+    status: (orderId: string) => Promise<MidtransStatusResponse>;
+  };
+};
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
+function getMidtransStatusCode(error: unknown): unknown {
+  if (!isObject(error)) return undefined;
+  const apiResponse = error.ApiResponse;
+
+  return isObject(apiResponse)
+    ? error.httpStatusCode ?? apiResponse.status_code
+    : error.httpStatusCode;
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 const ORDER_PREFIX = "LUMI-";
 
 export function getMidtransOrderId(bookingRef: string): string {
@@ -83,7 +117,9 @@ export function getBookingRefFromMidtransOrderId(orderId: string): string {
     : `${ORDER_PREFIX}${bookingRef}`;
 }
 
-export function isMidtransPaymentSuccessful(statusResponse: any): boolean {
+export function isMidtransPaymentSuccessful(
+  statusResponse: MidtransStatusResponse
+): boolean {
   const transactionStatus = statusResponse?.transaction_status;
   const fraudStatus = statusResponse?.fraud_status;
 
@@ -93,19 +129,23 @@ export function isMidtransPaymentSuccessful(statusResponse: any): boolean {
   );
 }
 
-export function isMidtransPaymentFailed(statusResponse: any): boolean {
-  return ["cancel", "deny", "expire"].includes(
-    statusResponse?.transaction_status
-  );
+export function isMidtransPaymentFailed(
+  statusResponse: MidtransStatusResponse
+): boolean {
+  const transactionStatus = statusResponse.transaction_status;
+
+  return transactionStatus
+    ? ["cancel", "deny", "expire"].includes(transactionStatus)
+    : false;
 }
 
-export function isMidtransNotFoundError(error: any): boolean {
-  return Number(error?.httpStatusCode ?? error?.ApiResponse?.status_code) === 404;
+export function isMidtransNotFoundError(error: unknown): boolean {
+  return Number(getMidtransStatusCode(error)) === 404;
 }
 
-function getMidtransErrorSummary(error: any): string {
-  const code = error?.httpStatusCode ?? error?.ApiResponse?.status_code;
-  const message = String(error?.message ?? error);
+function getMidtransErrorSummary(error: unknown): string {
+  const code = getMidtransStatusCode(error);
+  const message = getErrorMessage(error);
   return code ? `${message} (code ${code})` : message;
 }
 
@@ -120,7 +160,7 @@ function getMidtransErrorSummary(error: any): string {
 export async function createSnapTransaction(
   booking: Booking & { guest: Guest; payment: Payment | null }
 ): Promise<SnapResponse> {
-  const result = getRoom(booking.hotelId, booking.roomId);
+  const result = await getRoom(booking.hotelId, booking.roomId);
   if (!result) {
     throw new Error(`Room not found: ${booking.roomId}`);
   }
@@ -200,10 +240,11 @@ export async function createSnapTransaction(
  * This is CRITICAL for security. We use the SDK to perform the verification.
  */
 export async function verifyMidtransNotification(
-  notificationJson: any
-): Promise<any> {
+  notificationJson: unknown
+): Promise<MidtransStatusResponse> {
   try {
-    const statusResponse = await (core as any).transaction.notification(notificationJson);
+    const statusResponse = await (core as unknown as MidtransCoreClient)
+      .transaction.notification(notificationJson);
     return statusResponse;
   } catch (error) {
     console.error(
@@ -225,9 +266,10 @@ export async function verifyMidtransNotification(
  */
 export async function checkTransactionStatus(
   midtransOrderId: string
-): Promise<any> {
+): Promise<MidtransStatusResponse> {
   try {
-    const statusResponse = await (core as any).transaction.status(midtransOrderId);
+    const statusResponse = await (core as unknown as MidtransCoreClient)
+      .transaction.status(midtransOrderId);
     return statusResponse;
   } catch (error) {
     if (!isMidtransNotFoundError(error)) {

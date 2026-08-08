@@ -1,28 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findRoomById } from "@/lib/hotels";
-import { nightsBetween, priceBreakdown } from "@/lib/pricing";
 import { createBooking } from "@/lib/db/booking-service";
-import { sendBookingConfirmation } from "@/lib/email";
 import {
   BookingRequestSchema,
   formatZodErrors,
 } from "@/lib/schemas/booking";
 
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
-
-function makeBookingRef(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let out = "";
-  for (let i = 0; i < 6; i++) {
-    out += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return `LUMI-${out}`;
-}
-
-function uuid(): string {
-  return crypto.randomUUID();
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 /* ------------------------------------------------------------------ */
@@ -68,7 +53,6 @@ export async function POST(request: NextRequest) {
       guest_first_name,
       guest_last_name,
       guest_email,
-      guest_phone,
     } = parsed.data;
 
     /* --- Business logic validation -------------------------------- */
@@ -99,7 +83,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Room must exist
-    const result = findRoomById(room_id);
+    const result = await findRoomById(room_id);
     if (!result) {
       return NextResponse.json(
         {
@@ -149,11 +133,13 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("POST /api/bookings error:", error);
-    
+
+    const message = getErrorMessage(error);
+
     // Map specific service errors to HTTP responses
-    if (error.message === "ROOM_NOT_AVAILABLE") {
+    if (message === "ROOM_NOT_AVAILABLE") {
       return NextResponse.json(
         {
           status: "error",
@@ -163,9 +149,9 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       );
     }
-    
-    if (error.message.includes("high traffic")) {
-       return NextResponse.json(
+
+    if (message.includes("high traffic")) {
+      return NextResponse.json(
         {
           status: "error",
           message: "Too many concurrent requests. Please try again.",
@@ -187,12 +173,28 @@ export async function POST(request: NextRequest) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  GET /api/bookings (optional — list bookings for debug / admin)     */
+/*  GET /api/bookings (admin only — requires ADMIN_API_KEY)            */
 /* ------------------------------------------------------------------ */
 
 import { prisma } from "@/lib/db/prisma";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Auth check: require ADMIN_API_KEY
+  const adminKey = process.env.ADMIN_API_KEY;
+  if (adminKey) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${adminKey}`) {
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "Unauthorized. Provide a valid ADMIN_API_KEY in the Authorization header.",
+          code: "UNAUTHORIZED",
+        },
+        { status: 401 }
+      );
+    }
+  }
+
   const bookings = await prisma.booking.findMany({
     include: { guest: true, payment: true },
     orderBy: { createdAt: "desc" },
@@ -232,3 +234,4 @@ export async function GET() {
     },
   });
 }
+

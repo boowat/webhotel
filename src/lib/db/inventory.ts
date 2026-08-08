@@ -133,6 +133,38 @@ export async function releaseInventory(
 }
 
 /**
+ * Releases booked inventory for a confirmed booking (e.g. cancellation).
+ * Unlike releaseInventory which handles ACTIVE (locked) units,
+ * this handles CONVERTED locks from confirmed bookings — it decrements
+ * bookedUnits instead of lockedUnits.
+ */
+export async function releaseBookedInventory(
+  bookingId: string,
+  tx: Prisma.TransactionClient
+) {
+  const locks = await tx.roomLock.findMany({
+    where: {
+      bookingId,
+      status: "CONVERTED",
+    },
+  });
+
+  for (const lock of locks) {
+    await tx.roomInventory.update({
+      where: { id: lock.roomInventoryId },
+      data: {
+        bookedUnits: { decrement: 1 },
+      },
+    });
+
+    await tx.roomLock.update({
+      where: { id: lock.id },
+      data: { status: "RELEASED" },
+    });
+  }
+}
+
+/**
  * Confirms inventory for a booking (e.g. payment successful).
  * Converts locked units to booked units.
  */

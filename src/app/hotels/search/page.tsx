@@ -2,8 +2,10 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { PiCalendarCheckDuotone } from "react-icons/pi";
 import { SafeImage } from "@/components/SafeImage";
-import { hotels } from "@/lib/hotels";
+import { StarRating } from "@/components/StarRating";
+import { getHotels } from "@/lib/hotels";
 import { formatCurrency, nightsBetween, priceBreakdown } from "@/lib/pricing";
+import type { Hotel } from "@/lib/types";
 
 type SearchParamValue = string | string[] | undefined;
 
@@ -43,8 +45,10 @@ function toOptionalPrice(value: SearchParamValue) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
 }
 
-function getBedTypeOptions() {
-  const roomBeds = hotels[0].rooms.map((room) => room.beds.toLowerCase());
+function getBedTypeOptions(hotels: Hotel[]) {
+  const roomBeds = hotels.flatMap((hotel) =>
+    hotel.rooms.map((room) => room.beds.toLowerCase()),
+  );
 
   return BED_TYPE_KEYS.filter((key) =>
     roomBeds.some((beds) => beds.includes(key)),
@@ -134,6 +138,7 @@ export async function generateMetadata() {
 export default async function RoomSearchPage(props: RoomSearchPageProps) {
   const t = await getTranslations("search");
   const searchParams = await props.searchParams;
+  const hotels = await getHotels();
   const checkIn = firstParam(searchParams.checkIn) ?? "";
   const checkOut = firstParam(searchParams.checkOut) ?? "";
   const rooms = toPositiveInt(searchParams.rooms, 1);
@@ -143,10 +148,15 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
   const totalGuests = Math.max(1, guests);
   const nights = nightsBetween(checkIn, checkOut);
   const hasValidDates = nights > 0;
-  const hotel = hotels[0];
-  const allRooms = hotel.rooms.map((room) => ({ hotel, room }));
-  const minRoomPrice = Math.min(...allRooms.map(({ room }) => room.pricePerNight));
-  const maxRoomPrice = Math.max(...allRooms.map(({ room }) => room.pricePerNight));
+  const allRooms = hotels.flatMap((hotel) =>
+    hotel.rooms.map((room) => ({ hotel, room })),
+  );
+  const minRoomPrice = allRooms.length
+    ? Math.min(...allRooms.map(({ room }) => room.pricePerNight))
+    : 0;
+  const maxRoomPrice = allRooms.length
+    ? Math.max(...allRooms.map(({ room }) => room.pricePerNight))
+    : 0;
   const rawMinPrice = toOptionalPrice(searchParams.minPrice);
   const rawMaxPrice = toOptionalPrice(searchParams.maxPrice);
   const minPrice =
@@ -157,7 +167,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
     rawMinPrice !== undefined && rawMaxPrice !== undefined
       ? Math.max(rawMinPrice, rawMaxPrice)
       : rawMaxPrice;
-  const bedTypeOptions = getBedTypeOptions();
+  const bedTypeOptions = getBedTypeOptions(hotels);
   const bedTypeParam = firstParam(searchParams.bedType)?.toLowerCase() ?? "";
   const selectedBedType = bedTypeOptions.some((key) => key === bedTypeParam)
     ? bedTypeParam

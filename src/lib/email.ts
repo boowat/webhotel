@@ -351,7 +351,7 @@ export async function sendBookingConfirmationByRef(
     };
   }
 
-  const result = getRoom(booking.hotelId, booking.roomId);
+  const result = await getRoom(booking.hotelId, booking.roomId);
   if (!result) {
     return {
       success: false,
