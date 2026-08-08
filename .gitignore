@@ -43,5 +43,19 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# ─── Security ────────────────────────────────────────────
-*.pem
+# local env files
+.env*.local
+.env
+
+# local docker overrides (personal port/config)
+docker-compose.override.yml
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+.gstack/
+.worktrees/
+
+/app/generated/prisma
+
+/src/app/generated/prisma

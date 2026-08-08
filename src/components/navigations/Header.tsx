@@ -27,7 +27,7 @@ export function HeaderBar() {
       <div className="flex max-w-[1920px] items-center justify-between px-6 lg:px-8 py-2 mx-auto ">
         <Link
           href="/"
-          className="flex items-center justify-center gap-2 border-2 rounded-lg px-4 py-2 border-primary"
+          className="flex items-center justify-center gap-2 border-2 rounded-md px-4 py-2 border-primary"
         >
           <PiBuildingApartmentDuotone className="w-6 h-6 text-primary" />
 
