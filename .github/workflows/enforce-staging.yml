@@ -1,0 +1,17 @@
+name: Enforce Staging to Main
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-source-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify PR source is staging
+        run: |
+          if [ "${{ github.head_ref }}" != "staging" ]; then
+            echo "Error: PR ke main HANYA bisa berasal dari branch staging!"
+            exit 1
+          fi
