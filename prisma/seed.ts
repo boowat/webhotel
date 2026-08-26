@@ -1,4 +1,9 @@
-import "dotenv/config";
+import { config } from "dotenv";
+
+// Match prisma.config.ts: env vars live in `.env.local` (Next.js convention),
+// with `.env` as fallback. Plain `dotenv/config` would only read `.env`.
+config({ path: ".env.local" });
+config();
 
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
