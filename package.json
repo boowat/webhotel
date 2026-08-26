@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "tsx --test src/lib/hotels.test.ts",
+    "db:seed": "tsx prisma/seed.ts",
     "prepare": "husky"
   },
   "lint-staged": {
