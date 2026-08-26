@@ -269,7 +269,7 @@ function buildConfirmationHtml(booking: Booking): string {
           <tr>
             <td style="background:#f8fafc; padding:20px 32px; text-align:center; border-top:1px solid #e2e8f0;">
               <p style="margin:0; font-size:13px; color:#94a3b8;">
-                Lumi Stays · Your journey starts here
+                Des Indes · Your stay starts here
               </p>
               <p style="margin:4px 0 0; font-size:11px; color:#cbd5e1;">
                 This is an automated confirmation. Please do not reply to this email.
@@ -321,7 +321,7 @@ function buildConfirmationText(booking: Booking): string {
     ``,
     `Free cancellation up to 48 hours before check-in.`,
     ``,
-    `— Lumi Stays`,
+    `— Des Indes`,
   ].join("\n");
 }
 
@@ -351,7 +351,7 @@ export async function sendBookingConfirmationByRef(
     };
   }
 
-  const result = getRoom(booking.hotelId, booking.roomId);
+  const result = await getRoom(booking.hotelId, booking.roomId);
   if (!result) {
     return {
       success: false,
@@ -396,7 +396,7 @@ export async function sendBookingConfirmation(
   try {
     const transporter = await getTransporter();
 
-    const fromName = process.env.SMTP_FROM_NAME || "Lumi Stays";
+    const fromName = process.env.SMTP_FROM_NAME || "Des Indes";
     const fromEmail =
       process.env.SMTP_FROM_EMAIL || "bookings@lumistays.com";
 

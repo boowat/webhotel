@@ -4,9 +4,9 @@ import { BookingFlow } from "@/components/BookingFlow";
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const hotel = getHotel(params.id);
+  const hotel = await getHotel(params.id);
   return {
-    title: hotel ? `Book ${hotel.name} — Lumi Stays` : "Book — Lumi Stays",
+    title: hotel ? `Book ${hotel.name} — Des Indes` : "Book — Des Indes",
   };
 }
 
@@ -23,7 +23,7 @@ export default async function BookPage(
 ) {
   const searchParams = await props.searchParams;
   const params = await props.params;
-  const hotel = getHotel(params.id);
+  const hotel = await getHotel(params.id);
   if (!hotel) notFound();
 
   const guestsNum = searchParams.guests

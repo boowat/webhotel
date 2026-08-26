@@ -1,0 +1,19 @@
+{
+  "metaTitle": "{room} room — {hotel}",
+  "metaTitleNotFound": "Room not found — Des Indes",
+  "breadcrumbHome": "Stays",
+  "breadcrumbResults": "Available rooms",
+  "heading": "{room} room",
+  "upToGuests": "Up to {count, plural, one {# guest} other {# guests}}",
+  "aboutTitle": "About this room",
+  "includedTitle": "Included with your stay",
+  "otherRoomsTitle": "Other room types",
+  "perNight": "/ night",
+  "nightsLine": "{price} × {nights, plural, one {# night} other {# nights}}",
+  "serviceFee": "Service fee",
+  "taxes": "Taxes",
+  "total": "Total",
+  "pickDates": "Pick your check-in and check-out dates to see the total price.",
+  "reserve": "Reserve",
+  "virtualRoom": "Virtual room"
+}
