@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { PiCalendarDotsDuotone, PiCaretLeft, PiCaretRight } from "react-icons/pi";
+import {
+  PiCalendarDotsDuotone,
+  PiCaretLeft,
+  PiCaretRight,
+} from "react-icons/pi";
 import { todayISO } from "@/lib/pricing";
 
 function nightsBetween(checkIn: string, checkOut: string) {
@@ -32,8 +36,8 @@ const MONTHS = [
 // "YYYY-MM-DD" -> "DD Month YYYY" (e.g. "12 July 2026").
 function formatDate(iso: string) {
   if (!iso) return "";
-  const [year, month, day] = iso.split("-");
-  return `${day} ${MONTHS[Number(month) - 1]} ${year}`;
+  const [, month, day] = iso.split("-");
+  return `${day} ${MONTHS[Number(month) - 1]} `;
 }
 
 export function DateRangePicker({
@@ -73,22 +77,22 @@ export function DateRangePicker({
   const nights = nightsBetween(checkIn, checkOut);
 
   return (
-    <div className="dropdown flex flex-col gap-1 w-full mb-4">
-      <label className="text-xs font-medium text-base-content">Set Date</label>
+    <div className="dropdown mb-4 flex w-full flex-col gap-1">
+      <label className="text-base-content text-xs font-medium">Set Date</label>
       {/* custom input that trigger dropdown */}
       <div
         tabIndex={0}
         role="button"
-        className="input input-bordered flex w-full items-center justify-between gap-2 bg-base-200"
+        className="input input-bordered bg-base-200 flex w-full items-center justify-between gap-2"
       >
         <span className="flex flex-row items-center gap-2">
-          <PiCalendarDotsDuotone className="h-4 w-4 shrink-0 text-primary/80" />
+          <PiCalendarDotsDuotone className="text-primary/80 h-4 w-4 shrink-0" />
           {checkIn && checkOut ? (
             <span className="flex flex-row items-center justify-center gap-1">
-              {formatDate(checkIn)}{" "}
-              <PiCaretRight className="h-4 w-4 text-primary/90" />
-              {formatDate(checkOut)}{" "}
-              <span className="ml-1 text-base-content/50">
+              {formatDate(checkIn)}
+              <PiCaretRight className="text-primary/90 h-4 w-4" />
+              {formatDate(checkOut)}
+              <span className="text-base-content/50 ml-1">
                 ({nights} {nights === 1 ? "night" : "nights"})
               </span>
             </span>
@@ -100,7 +104,7 @@ export function DateRangePicker({
 
       <div
         tabIndex={0}
-        className="dropdown-content z-10 mt-2 rounded-box border border-base-300 bg-base-100 p-3 shadow-lg"
+        className="dropdown-content rounded-box border-base-300 bg-base-100 z-10 mt-2 border p-3 shadow-lg"
       >
         <calendar-range
           ref={rangeRef}
