@@ -36,8 +36,8 @@ const MONTHS = [
 // "YYYY-MM-DD" -> "DD Month YYYY" (e.g. "12 July 2026").
 function formatDate(iso: string) {
   if (!iso) return "";
-  const [year, month, day] = iso.split("-");
-  return `${day} ${MONTHS[Number(month) - 1]} ${year}`;
+  const [, month, day] = iso.split("-");
+  return `${day} ${MONTHS[Number(month) - 1]} `;
 }
 
 export function DateRangePicker({
