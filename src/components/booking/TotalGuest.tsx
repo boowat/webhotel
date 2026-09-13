@@ -1,6 +1,7 @@
 "use client";
 
 import { PiUsersDuotone, PiMinusBold, PiPlusBold } from "react-icons/pi";
+import { useRef, useState } from "react";
 
 function Stepper({
   label,
@@ -16,11 +17,11 @@ function Stepper({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-1.5 mb-4">
+    <div className="mb-4 flex items-center justify-between gap-4 py-1.5">
       <div className="flex flex-col">
-        <span className="text-sm font-medium text-base-content">{label}</span>
+        <span className="text-base-content text-sm font-medium">{label}</span>
         {hint ? (
-          <span className="text-xs text-base-content/50">{hint}</span>
+          <span className="text-base-content/50 text-xs">{hint}</span>
         ) : null}
       </div>
       <div className="join">
@@ -28,18 +29,18 @@ function Stepper({
           type="button"
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={value <= min}
-          className="join-item flex h-9 w-9 items-center justify-center border border-primary bg-base-100 text-base-content transition-colors hover:bg-base-200 disabled:opacity-40 disabled:hover:bg-base-100"
+          className="join-item border-primary bg-base-100 text-base-content hover:bg-base-200 disabled:hover:bg-base-100 flex h-9 w-9 items-center justify-center border transition-colors disabled:opacity-40"
           aria-label={`Decrease ${label}`}
         >
           <PiMinusBold />
         </button>
-        <span className="join-item flex h-9 w-10 items-center justify-center border border-primary bg-base-100 text-sm font-medium">
+        <span className="join-item border-primary bg-base-100 flex h-9 w-10 items-center justify-center border text-sm font-medium">
           {value}
         </span>
         <button
           type="button"
           onClick={() => onChange(value + 1)}
-          className="join-item flex h-9 w-9 items-center justify-center border border-primary bg-base-100 text-base-content transition-colors hover:bg-base-200"
+          className="join-item border-primary bg-base-100 text-base-content hover:bg-base-200 flex h-9 w-9 items-center justify-center border transition-colors"
           aria-label={`Increase ${label}`}
         >
           <PiPlusBold />
@@ -72,48 +73,80 @@ export function TotalGuest({
   childrenCount: number;
   onChange: (rooms: number, adults: number, childrenCount: number) => void;
 }) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [draft, setDraft] = useState({ rooms, adults, childrenCount }); //temporary state to hold the values while the dialog is open
+
+  function open() {
+    setDraft({ rooms, adults, childrenCount });
+    dialogRef.current?.showModal();
+  }
+
+  function close() {
+    dialogRef.current?.close();
+  }
+
+  function done() {
+    onChange(draft.rooms, draft.adults, draft.childrenCount);
+    close();
+  }
+
   return (
-    <div className="dropdown flex w-full flex-col gap-1">
-      <label className="text-xs font-medium text-base-content">{label}</label>
+    <>
+      <label className="text-base-content text-xs font-medium">{label}</label>
       {/* trigger — shows the current selection summary */}
-      <div
-        tabIndex={0}
-        role="button"
-        className="input input-bordered flex w-full items-center justify-between gap-2 bg-base-200"
+      <button
+        type="button"
+        onClick={open}
+        className="input input-bordered bg-base-200 flex w-full items-center justify-between gap-2"
       >
         <span className="flex items-center gap-2 truncate">
-          <PiUsersDuotone className="h-4 w-4 shrink-0 text-primary/80" />
+          <PiUsersDuotone className="text-primary/80 h-4 w-4 shrink-0" />
           <span className="truncate">
             {summarize(rooms, adults, childrenCount)}
           </span>
         </span>
-      </div>
+      </button>
 
-      <div
-        tabIndex={0}
-        className="dropdown-content z-10 mt-2 w-full rounded-box bg-base-100 p-3 shadow-lg"
-      >
-        <Stepper
-          label="Rooms"
-          value={rooms}
-          min={1}
-          onChange={(v) => onChange(v, adults, childrenCount)}
-        />
-        <Stepper
-          label="Adults"
-          hint="Ages 13+"
-          value={adults}
-          min={1}
-          onChange={(v) => onChange(rooms, v, childrenCount)}
-        />
-        <Stepper
-          label="Children"
-          hint="Ages 0–12"
-          value={childrenCount}
-          min={0}
-          onChange={(v) => onChange(rooms, adults, v)}
-        />
-      </div>
-    </div>
+      <dialog ref={dialogRef} className="modal modal-middle">
+        <div className="modal-box">
+          <h3 className="mb-4 text-lg font-semibold">{label}</h3>
+
+          <Stepper
+            label="Rooms"
+            value={draft.rooms}
+            min={1}
+            onChange={(v) => setDraft((d) => ({ ...d, rooms: v }))}
+          />
+          <Stepper
+            label="Adults"
+            hint="Ages 13+"
+            value={draft.adults}
+            min={1}
+            onChange={(v) => setDraft((d) => ({ ...d, adults: v }))}
+          />
+          <Stepper
+            label="Children"
+            hint="Ages 0–12"
+            value={draft.childrenCount}
+            min={0}
+            onChange={(v) => setDraft((d) => ({ ...d, childrenCount: v }))}
+          />
+
+          <div className="modal-action">
+            <button type="button" className="btn btn-ghost" onClick={close}>
+              Cancel
+            </button>
+            <button type="button" className="btn btn-primary" onClick={done}>
+              Done
+            </button>
+          </div>
+        </div>
+
+        {/* click outside to close */}
+        <button type="button" className="modal-backdrop" onClick={close}>
+          close
+        </button>
+      </dialog>
+    </>
   );
 }
