@@ -2,6 +2,7 @@
 
 import { PiUsersDuotone, PiMinusBold, PiPlusBold } from "react-icons/pi";
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 function Stepper({
   label,
@@ -16,6 +17,8 @@ function Stepper({
   min: number;
   onChange: (value: number) => void;
 }) {
+  const t = useTranslations("home.booking");
+
   return (
     <div className="mb-4 flex items-center justify-between gap-4 py-1.5">
       <div className="flex flex-col">
@@ -30,7 +33,7 @@ function Stepper({
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={value <= min}
           className="join-item border-primary bg-base-100 text-base-content hover:bg-base-200 disabled:hover:bg-base-100 flex h-9 w-9 items-center justify-center border transition-colors disabled:opacity-40"
-          aria-label={`Decrease ${label}`}
+          aria-label={t("decrease", { label })}
         >
           <PiMinusBold />
         </button>
@@ -41,7 +44,7 @@ function Stepper({
           type="button"
           onClick={() => onChange(value + 1)}
           className="join-item border-primary bg-base-100 text-base-content hover:bg-base-200 flex h-9 w-9 items-center justify-center border transition-colors"
-          aria-label={`Increase ${label}`}
+          aria-label={t("increase", { label })}
         >
           <PiPlusBold />
         </button>
@@ -50,18 +53,8 @@ function Stepper({
   );
 }
 
-// e.g. "1 Room, 2 Adults, 1 Child"
-function summarize(rooms: number, adults: number, childrenCount: number) {
-  const room = `${rooms} Room${rooms === 1 ? "" : "s"}`;
-  const adult = `${adults} Adult${adults === 1 ? "" : "s"}`;
-  const child = `${childrenCount} ${
-    childrenCount === 1 ? "Child" : "Children"
-  }`;
-  return `${room}, ${adult}, ${child}`;
-}
-
 export function TotalGuest({
-  label = "Guests",
+  label,
   rooms,
   adults,
   childrenCount,
@@ -73,6 +66,8 @@ export function TotalGuest({
   childrenCount: number;
   onChange: (rooms: number, adults: number, childrenCount: number) => void;
 }) {
+  const t = useTranslations("home.booking");
+  const heading = label ?? t("guests");
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [draft, setDraft] = useState({ rooms, adults, childrenCount }); //temporary state to hold the values while the dialog is open
 
@@ -92,7 +87,7 @@ export function TotalGuest({
 
   return (
     <>
-      <label className="text-base-content text-xs font-medium">{label}</label>
+      <label className="text-base-content text-xs font-medium">{heading}</label>
       {/* trigger — shows the current selection summary */}
       <button
         type="button"
@@ -102,31 +97,31 @@ export function TotalGuest({
         <span className="flex items-center gap-2 truncate">
           <PiUsersDuotone className="text-primary/80 h-4 w-4 shrink-0" />
           <span className="truncate">
-            {summarize(rooms, adults, childrenCount)}
+            {t("guestSummary", { rooms, adults, children: childrenCount })}
           </span>
         </span>
       </button>
 
       <dialog ref={dialogRef} className="modal modal-middle">
         <div className="modal-box">
-          <h3 className="mb-4 text-lg font-semibold">{label}</h3>
+          <h3 className="mb-4 text-lg font-semibold">{heading}</h3>
 
           <Stepper
-            label="Rooms"
+            label={t("rooms")}
             value={draft.rooms}
             min={1}
             onChange={(v) => setDraft((d) => ({ ...d, rooms: v }))}
           />
           <Stepper
-            label="Adults"
-            hint="Ages 13+"
+            label={t("adults")}
+            hint={t("adultsHint")}
             value={draft.adults}
             min={1}
             onChange={(v) => setDraft((d) => ({ ...d, adults: v }))}
           />
           <Stepper
-            label="Children"
-            hint="Ages 0–12"
+            label={t("children")}
+            hint={t("childrenHint")}
             value={draft.childrenCount}
             min={0}
             onChange={(v) => setDraft((d) => ({ ...d, childrenCount: v }))}
@@ -134,17 +129,17 @@ export function TotalGuest({
 
           <div className="modal-action">
             <button type="button" className="btn btn-ghost" onClick={close}>
-              Cancel
+              {t("cancel")}
             </button>
             <button type="button" className="btn btn-primary" onClick={done}>
-              Done
+              {t("done")}
             </button>
           </div>
         </div>
 
         {/* click outside to close */}
         <button type="button" className="modal-backdrop" onClick={close}>
-          close
+          {t("close")}
         </button>
       </dialog>
     </>
