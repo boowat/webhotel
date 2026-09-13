@@ -23,7 +23,18 @@
     "search": "Search",
     "date": "Date",
     "time": "Time",
-    "selectVenue": "Select a venue"
+    "selectVenue": "Select a venue",
+    "setDate": "Set Date",
+    "dateRangePlaceholder": "Check-in - Check-out",
+    "nights": "{count, plural, one {# night} other {# nights}}",
+    "adultsHint": "Ages 13+",
+    "childrenHint": "Ages 0–12",
+    "guestSummary": "{rooms, plural, one {# Room} other {# Rooms}}, {adults, plural, one {# Adult} other {# Adults}}, {children, plural, one {# Child} other {# Children}}",
+    "decrease": "Decrease {label}",
+    "increase": "Increase {label}",
+    "cancel": "Cancel",
+    "done": "Done",
+    "close": "Close"
   },
   "featured": {
     "label": "Featured stay",

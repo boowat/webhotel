@@ -20,7 +20,18 @@
     "search": "Cari",
     "date": "Tanggal",
     "time": "Jam",
-    "selectVenue": "Pilih ruangan"
+    "selectVenue": "Pilih ruangan",
+    "setDate": "Pilih Tanggal",
+    "dateRangePlaceholder": "Check-in - Check-out",
+    "nights": "{count, plural, other {# malam}}",
+    "adultsHint": "Usia 13+",
+    "childrenHint": "Usia 0–12",
+    "guestSummary": "{rooms, plural, other {# Kamar}}, {adults, plural, other {# Dewasa}}, {children, plural, other {# Anak}}",
+    "decrease": "Kurangi {label}",
+    "increase": "Tambah {label}",
+    "cancel": "Batal",
+    "done": "Selesai",
+    "close": "Tutup"
   },
   "featured": {
     "label": "Penginapan unggulan",
