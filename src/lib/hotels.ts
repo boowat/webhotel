@@ -31,7 +31,9 @@ function toNumber(value: DecimalLike): number {
   return value.toNumber();
 }
 
-function isGalleryImage(value: unknown): value is { src: string; seed: string } {
+function isGalleryImage(
+  value: unknown,
+): value is { src: string; seed: string } {
   if (!value || typeof value !== "object") return false;
 
   const maybeImage = value as Record<string, unknown>;
@@ -56,6 +58,7 @@ function mapRoomRecord(room: RoomRecord): RoomType {
     sizeArea: room.sizeArea ?? undefined,
     image: room.image,
     imageSeed: room.imageSeed,
+    gallery: toGallery(room.gallery),
     totalUnits: room.totalUnits,
   };
 }

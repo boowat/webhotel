@@ -22,6 +22,13 @@ Log update harian tim, async (ga perlu meeting). Board Epic/Story/Task ada di [e
 
 ---
 
+### Sandi Miftah - 2026-09-13
+
+- Yesteday: git checkout on old log to see whats not working?
+- Today: Several things I will do today: - fix error on search result, add await on const match. - fix detail room, do several db migrate, seed etc.
+- Blockers: Still not working till checkout, need simulation payment gateway, whether midtrans or xendit
+- Notes: Tomorrow, focus on redesign checkout form if click reserve now on detail page, make the modal as in homepage.
+
 ### Sandi Miftah - 2026-07-28
 
 - Yesterday: Finalizing result search filter

@@ -14,6 +14,7 @@ export type SeedRoom = {
   sizeArea?: string;
   image: string;
   imageSeed: string;
+  gallery: SeedGalleryImage[];
   totalUnits: number;
   sortOrder: number;
 };
@@ -112,6 +113,25 @@ export const seedHotel: SeedHotel = {
       size: "28 sqm",
       image: img("photo-1505693416388-ac5ce068fe85"),
       imageSeed: "standard-room",
+      gallery: [
+        {
+          src: img("photo-1611892440504-42a792e24d32"),
+          seed: "standard-room-bed",
+        },
+        {
+          src: img("photo-1584132967334-10e028bd69f7"),
+          seed: "standard-room-bath",
+        },
+        {
+          src: img("photo-1595576508898-0ad5c879a061"),
+          seed: "standard-room-desk",
+        },
+        {
+          src: img("photo-1560448204-e02f11c3d0e2"),
+          seed: "standard-room-view",
+        },
+      ],
+
       totalUnits: 10,
       sortOrder: 1,
     },
@@ -126,6 +146,25 @@ export const seedHotel: SeedHotel = {
       size: "36 sqm",
       image: img("photo-1568084680786-a84f91d1153c"),
       imageSeed: "gold-room",
+      gallery: [
+        {
+          src: img("photo-1590490360182-c33d57733427"),
+          seed: "gold-room-bed",
+        },
+        {
+          src: img("photo-1631049307264-da0ec9d70304"),
+          seed: "gold-room-lounge",
+        },
+        {
+          src: img("photo-1587985064135-0366536eab42"),
+          seed: "gold-room-bath",
+        },
+        {
+          src: img("photo-1522708323590-d24dbb6b0267"),
+          seed: "gold-room-view",
+        },
+      ],
+
       totalUnits: 10,
       sortOrder: 2,
     },
@@ -140,6 +179,25 @@ export const seedHotel: SeedHotel = {
       size: "72 sqm",
       image: img("photo-1578683010236-d716f9a3f461"),
       imageSeed: "presidential-suite",
+      gallery: [
+        {
+          src: img("photo-1616486338812-3dadae4b4ace"),
+          seed: "presidential-suite-living",
+        },
+        {
+          src: img("photo-1582719478250-c89cae4dc85b"),
+          seed: "presidential-suite-bed",
+        },
+        {
+          src: img("photo-1571003123894-1f0594d2b5d9"),
+          seed: "presidential-suite-bath",
+        },
+        {
+          src: img("photo-1551882547-ff40c63fe5fa"),
+          seed: "presidential-suite-dining",
+        },
+      ],
+
       totalUnits: 10,
       sortOrder: 3,
     },
