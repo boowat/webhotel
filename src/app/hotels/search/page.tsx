@@ -200,6 +200,12 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      {/* <Link
+        href=".."
+        className="inline-flex items-center justify-center rounded-md border border-slate-300 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+      >
+        <PiCaretLeftBold size={16} />
+      </Link> */}
       <nav className="mb-4 text-sm text-slate-500">
         <Link href="/" className="hover:text-slate-900">
           {t("breadcrumbHome")}
@@ -223,13 +229,6 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
               : t("noDatesYet")}
           </p>
         </div>
-
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center rounded-md border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-        >
-          {t("changeSearch")}
-        </Link>
       </div>
 
       {!hasValidDates ? (
@@ -252,7 +251,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <form
               method="get"
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
+              className="shadow-card rounded-2xl border border-slate-200 bg-white p-5"
             >
               <input type="hidden" name="checkIn" value={checkIn} />
               <input type="hidden" name="checkOut" value={checkOut} />
@@ -272,7 +271,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                 </div>
                 <Link
                   href={`/hotels/search?${baseSearchParams.toString()}`}
-                  className="text-sm font-semibold text-primary hover:text-primary/80"
+                  className="text-primary hover:text-primary/80 text-sm font-semibold"
                 >
                   {t("filtersClear")}
                 </Link>
@@ -293,7 +292,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                       min={0}
                       placeholder={String(minRoomPrice)}
                       defaultValue={rawMinPrice ?? ""}
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
+                      className="focus:border-primary focus:ring-primary w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-1 focus:outline-hidden"
                     />
                   </label>
                   <label className="block">
@@ -306,7 +305,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                       min={0}
                       placeholder={String(maxRoomPrice)}
                       defaultValue={rawMaxPrice ?? ""}
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
+                      className="focus:border-primary focus:ring-primary w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-1 focus:outline-hidden"
                     />
                   </label>
                 </div>
@@ -319,7 +318,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                 <select
                   name="bedType"
                   defaultValue={selectedBedType}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary"
+                  className="focus:border-primary focus:ring-primary w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-1 focus:outline-hidden"
                 >
                   <option value="">{t("bedTypeAny")}</option>
                   {bedTypeOptions.map((key) => (
@@ -332,7 +331,7 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
 
               <button
                 type="submit"
-                className="mt-5 w-full rounded-md bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
+                className="bg-primary hover:bg-primary/90 mt-5 w-full rounded-md px-4 py-3 text-sm font-semibold text-white transition"
               >
                 {t("applyFilters")}
               </button>
@@ -353,100 +352,103 @@ export default async function RoomSearchPage(props: RoomSearchPageProps) {
                 <h2 className="text-lg font-semibold text-slate-900">
                   {t("noMatchTitle")}
                 </h2>
-                <p className="mt-2 text-sm text-slate-600">{t("noMatchBody")}</p>
+                <p className="mt-2 text-sm text-slate-600">
+                  {t("noMatchBody")}
+                </p>
               </div>
             ) : null}
 
-          {filteredRooms.map(({ hotel, room }) => {
-            const breakdown = priceBreakdown(room.pricePerNight, nights);
-            const bookingParams = new URLSearchParams({
-              room: room.id,
-              checkIn,
-              checkOut,
-              guests: String(totalGuests),
-            });
+            {filteredRooms.map(({ hotel, room }) => {
+              const breakdown = priceBreakdown(room.pricePerNight, nights);
+              const bookingParams = new URLSearchParams({
+                room: room.id,
+                checkIn,
+                checkOut,
+                guests: String(totalGuests),
+              });
 
-            return (
-              <article
-                key={`${hotel.id}-${room.id}`}
-                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card transition hover:border-primary/40 hover:shadow-lg focus-within:border-primary/40 focus-within:shadow-lg"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-[240px_1fr]">
-                  <div className="relative aspect-16/10 overflow-hidden sm:aspect-auto">
-                    <SafeImage
-                      src={room.image}
-                      fallbackSeed={room.imageSeed}
-                      alt={room.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-4 p-5">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                      <div>
-                        <h2 className="text-xl font-semibold text-slate-900">
-                          <Link
-                            href={`/rooms/${room.id}?${baseSearchParams.toString()}`}
-                            className="outline-hidden after:absolute after:inset-0 after:content-[''] group-hover:text-primary"
-                          >
-                            {room.name}
-                          </Link>
-                        </h2>
-                      </div>
+              return (
+                <article
+                  key={`${hotel.id}-${room.id}`}
+                  className="group shadow-card hover:border-primary/40 focus-within:border-primary/40 relative overflow-hidden rounded-2xl border border-slate-200 bg-white transition focus-within:shadow-lg hover:shadow-lg"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-[240px_1fr]">
+                    <div className="relative aspect-16/10 overflow-hidden sm:aspect-auto">
+                      <SafeImage
+                        src={room.image}
+                        fallbackSeed={room.imageSeed}
+                        alt={room.name}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
 
-                    <p className="text-sm leading-relaxed text-slate-600">
-                      {room.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-500">
-                      <span className="inline-flex items-center gap-1.5">
-                        <GuestIcon /> {t("upToGuests", { count: room.maxGuests })}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <BedIcon /> {room.beds}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <SizeIcon /> {room.size}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row sm:items-end sm:justify-between">
-                      <div>
-                        <p className="text-slate-900">
-                          <span className="text-lg font-semibold">
-                            {formatCurrency(
-                              room.pricePerNight,
-                              hotel.currency,
-                            )}
-                          </span>{" "}
-                          <span className="text-sm text-slate-500">
-                            {t("perNight")}
-                          </span>
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          {t("totalWithFees", {
-                            total: formatCurrency(
-                              breakdown.total,
-                              hotel.currency,
-                            ),
-                          })}
-                        </p>
+                    <div className="flex flex-col gap-4 p-5">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                          <h2 className="text-xl font-semibold text-slate-900">
+                            <Link
+                              href={`/rooms/${room.id}?${baseSearchParams.toString()}`}
+                              className="group-hover:text-primary outline-hidden after:absolute after:inset-0 after:content-['']"
+                            >
+                              {room.name}
+                            </Link>
+                          </h2>
+                        </div>
                       </div>
 
-                      <Link
-                        href={`/book/${hotel.id}?${bookingParams.toString()}`}
-                        className="relative z-10 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90"
-                      >
-                        <PiCalendarCheckDuotone size={18} />
-                        {t("reserve")}
-                      </Link>
+                      <p className="text-sm leading-relaxed text-slate-600">
+                        {room.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-500">
+                        <span className="inline-flex items-center gap-1.5">
+                          <GuestIcon />{" "}
+                          {t("upToGuests", { count: room.maxGuests })}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <BedIcon /> {room.beds}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <SizeIcon /> {room.size}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                          <p className="text-slate-900">
+                            <span className="text-lg font-semibold">
+                              {formatCurrency(
+                                room.pricePerNight,
+                                hotel.currency,
+                              )}
+                            </span>{" "}
+                            <span className="text-sm text-slate-500">
+                              {t("perNight")}
+                            </span>
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {t("totalWithFees", {
+                              total: formatCurrency(
+                                breakdown.total,
+                                hotel.currency,
+                              ),
+                            })}
+                          </p>
+                        </div>
+
+                        <Link
+                          href={`/book/${hotel.id}?${bookingParams.toString()}`}
+                          className="bg-primary hover:bg-primary/90 relative z-10 inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold text-white transition"
+                        >
+                          <PiCalendarCheckDuotone size={18} />
+                          {t("reserve")}
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </article>
-            );
-          })}
+                </article>
+              );
+            })}
           </div>
         </div>
       ) : null}

@@ -22,6 +22,20 @@ Log update harian tim, async (ga perlu meeting). Board Epic/Story/Task ada di [e
 
 ---
 
+### Sandi Miftah - 2026-09-14
+
+- Yesterday: Fixing search result, fixing detail page
+- Today:
+  - Add back button on pages
+  - Rename Stays with Home
+  - If possible, change input dropdown into modal/popup
+- Blockers:
+  - Still not working till checkout, need simulation payment gateway, whether midtrans or xendit
+  - Still not finishing homepage
+- Notes:
+  - First focusing on small changes
+  - Make sure validation applied, the detail sometime got missed
+
 ### Sandi Miftah - 2026-09-13
 
 - Yesteday: git checkout on old log to see whats not working?
