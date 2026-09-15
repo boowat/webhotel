@@ -28,7 +28,7 @@ export async function generateMetadata(props: {
   params: Promise<{ roomId: string }>;
 }) {
   const params = await props.params;
-  const match = findRoomById(params.roomId);
+  const match = await findRoomById(params.roomId);
   const t = await getTranslations("room");
 
   return {
@@ -41,7 +41,7 @@ export async function generateMetadata(props: {
 export default async function RoomDetailPage(props: RoomDetailPageProps) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  const match = findRoomById(params.roomId);
+  const match = await findRoomById(params.roomId);
   if (!match) notFound();
 
   const t = await getTranslations("room");
@@ -50,7 +50,8 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
   const checkOut = firstParam(searchParams.checkOut) ?? "";
   const guests = firstParam(searchParams.guests) ?? "";
   const nights = nightsBetween(checkIn, checkOut);
-  const breakdown = nights > 0 ? priceBreakdown(room.pricePerNight, nights) : null;
+  const breakdown =
+    nights > 0 ? priceBreakdown(room.pricePerNight, nights) : null;
 
   const bookingParams = new URLSearchParams({ room: room.id });
   if (checkIn) bookingParams.set("checkIn", checkIn);
@@ -93,7 +94,7 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
         </div>
 
         <aside>
-          <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+          <div className="shadow-card flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5">
             <p className="text-slate-900">
               <span className="text-2xl font-semibold">
                 {formatCurrency(room.pricePerNight, hotel.currency)}
@@ -114,7 +115,9 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
                 </div>
                 <div className="flex justify-between">
                   <dt>{t("serviceFee")}</dt>
-                  <dd>{formatCurrency(breakdown.serviceFee, hotel.currency)}</dd>
+                  <dd>
+                    {formatCurrency(breakdown.serviceFee, hotel.currency)}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt>{t("taxes")}</dt>
@@ -134,7 +137,7 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
             <div className="mt-auto pt-5">
               <Link
                 href={`/book/${hotel.id}?${bookingParams.toString()}`}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
+                className="bg-primary hover:bg-primary/90 inline-flex w-full items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-semibold text-white transition"
               >
                 <PiCalendarCheckDuotone size={18} />
                 {t("reserve")}
@@ -188,7 +191,7 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
                   <Link
                     key={other.id}
                     href={`/rooms/${other.id}${stayQuery ? `?${stayQuery}` : ""}`}
-                    className="group flex items-center gap-3 overflow-hidden rounded-md border border-slate-300 transition hover:border-primary/40 hover:bg-slate-50"
+                    className="group hover:border-primary/40 flex items-center gap-3 overflow-hidden rounded-md border border-slate-300 transition hover:bg-slate-50"
                   >
                     <div className="relative h-16 w-24 shrink-0 overflow-hidden">
                       <SafeImage
@@ -199,7 +202,7 @@ export default async function RoomDetailPage(props: RoomDetailPageProps) {
                       />
                     </div>
                     <div className="min-w-0 py-2 pr-3">
-                      <p className="truncate text-sm font-semibold text-slate-900 group-hover:text-primary">
+                      <p className="group-hover:text-primary truncate text-sm font-semibold text-slate-900">
                         {other.name}
                       </p>
                       <p className="mt-0.5 text-xs text-slate-500">

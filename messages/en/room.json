@@ -1,7 +1,7 @@
 {
   "metaTitle": "{room} room — {hotel}",
   "metaTitleNotFound": "Room not found — Des Indes",
-  "breadcrumbHome": "Stays",
+  "breadcrumbHome": "Home",
   "breadcrumbResults": "Available rooms",
   "heading": "{room} room",
   "upToGuests": "Up to {count, plural, one {# guest} other {# guests}}",

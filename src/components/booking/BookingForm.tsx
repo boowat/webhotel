@@ -18,8 +18,8 @@ import {
 export default function BookingForm() {
   const t = useTranslations("home");
   const router = useRouter();
-  const [checkIn, setCheckIn] = useState(() => addDays(todayISO(), 7));
-  const [checkOut, setCheckOut] = useState(() => addDays(todayISO(), 9));
+  const [checkIn, setCheckIn] = useState(() => addDays(todayISO(), 1));
+  const [checkOut, setCheckOut] = useState(() => addDays(todayISO(), 2));
 
   // Hooks for total guest
   const [rooms, setRooms] = useState(1);
@@ -51,7 +51,7 @@ export default function BookingForm() {
     <>
       <form
         onSubmit={searchRooms}
-        className="card flex flex-col gap-4 p-6 bg-base-100 h-80 max-h-96 shadow-md"
+        className="card bg-base-100 flex h-80 max-h-96 flex-col gap-4 p-6 shadow-md"
       >
         {/* name of each tab group should be unique */}
 
