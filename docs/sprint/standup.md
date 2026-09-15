@@ -22,6 +22,14 @@ Log update harian tim, async (ga perlu meeting). Board Epic/Story/Task ada di [e
 
 ---
 
+### Sandi Miftah - 2026-09-15
+
+- Yesterday: Patch update to system, renaming and make sure zod installed
+- Today: Since the system work till email, I can directly handle dashboard admin as well. On Hotel Admin
+- Blockers: I have not made the admin area for hotel owner and admin for dash.boowat.com
+- Notes: Turnout it already success till the checkout. Just make sure to fix some logic and also validation.
+- Connections: EPIC 1 / Story 1, Story 2, Story 3
+
 ### Sandi Miftah - 2026-09-14
 
 - Yesterday: Fixing search result, fixing detail page
