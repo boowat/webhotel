@@ -1,6 +1,6 @@
 # Sprint Board — Boowat Hotel Web Product
 
-Sumber: export Notion ([Project Stories](<Project%20Stories%2087f3fb46c3f9825b800401a6ad7ae251_all.csv>))
+Sumber: export Notion ([Project Stories](Project%20Stories%2087f3fb46c3f9825b800401a6ad7ae251_all.csv))
 
 ## Cara Pakai
 
@@ -17,12 +17,13 @@ Tambah Epic/Story baru kalau ada export Notion baru. Task boleh ditambah bebas d
 ## Epic: Reservation System & Room Booking
 
 ### Story: As a Traveler, I want to search rooms by date and guests, So that I can find available rooms.
-*Status: 🟡 In Progress · Due: 30 Jun 2026 · Points: 13*
 
-- [ ] Task: [Nama] — Flowchart Validasi Room/Venue — ⚪
-- [ ] Task: [Nama] — Desain State UI — ⚪
+_Status: 🟡 In Progress · Due: 30 Jun 2026 · Points: 13_
+
+- [x] Task: [Nama] — Flowchart Validasi Room/Venue — 🟢
+- [ ] Task: [Nama] — Desain State UI — 🟢
 - [ ] Task: [Nama] — Testing Form Edge Cases — ⚪
-- [ ] Task: [Nama] — Wireframe Form Search — ⚪
+- [ ] Task: [Nama] — Wireframe Form Search — 🟢
 - [ ] Task: [Nama] — Create Booking API Endpoint — ⚪
 - [ ] Task: [Nama] — Success Redirect — ⚪
 - [ ] Task: [Nama] — Setup API Contract — ⚪
@@ -39,7 +40,8 @@ Tambah Epic/Story baru kalau ada export Notion baru. Task boleh ditambah bebas d
 - [ ] Task: [Nama] — Desain Moodboard untuk Hotel Web Client — ⚪
 
 ### Story: As a Traveler, I want to choose available room types, So that I can book according to my preference.
-*Status: ⚪ Not Started · Due: 30 Jun 2026 · Points: 13*
+
+_Status: ⚪ Not Started · Due: 30 Jun 2026 · Points: 13_
 
 - [ ] Task: [Nama] — Flowchart Booking Flow — ⚪
 - [ ] Task: [Nama] — Update Skema Tabel Rooms — ⚪
@@ -52,7 +54,8 @@ Tambah Epic/Story baru kalau ada export Notion baru. Task boleh ditambah bebas d
 - [ ] Task: [Nama] — Seeding Data Fasilitas — ⚪
 
 ### Story: As a Traveler, I want to fill out my personal details form, So that the hotel can register my booking.
-*Status: ⚪ Not Started · Due: 30 Jun 2026 · Points: 8*
+
+_Status: ⚪ Not Started · Due: 30 Jun 2026 · Points: 8_
 
 - [ ] Task: [Nama] — Slicing Form Component — ⚪
 - [ ] Task: [Nama] — Create Reservations Table — ⚪
@@ -73,20 +76,23 @@ Tambah Epic/Story baru kalau ada export Notion baru. Task boleh ditambah bebas d
 
 ## Epic: Payment Gateway Integration
 
-*Story-story ini masih di tahap Product Backlog Refinement — belum ada task breakdown dari Notion.*
+_Story-story ini masih di tahap Product Backlog Refinement — belum ada task breakdown dari Notion._
 
 ### Story: As a Traveler, I want to choose payment methods (VA, E-wallet), So that I can pay easily.
-*Status: ⚪ Not Started (Backlog Refinement)*
+
+_Status: ⚪ Not Started (Backlog Refinement)_
 
 - [ ] Task: [Nama] — TBD, belum di-breakdown — ⚪
 
 ### Story: As a Traveler, I want to get an email/notification confirmation, So that I know my payment was successful.
-*Status: ⚪ Not Started (Backlog Refinement)*
+
+_Status: ⚪ Not Started (Backlog Refinement)_
 
 - [ ] Task: [Nama] — TBD, belum di-breakdown — ⚪
 
 ### Story: As a System, I want to automatically update room status to "Booked", So that double booking is avoided.
-*Status: ⚪ Not Started (Backlog Refinement)*
+
+_Status: ⚪ Not Started (Backlog Refinement)_
 
 - [ ] Task: [Nama] — TBD, belum di-breakdown — ⚪
 
